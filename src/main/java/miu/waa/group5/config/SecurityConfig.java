@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import miu.waa.group5.security.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -35,12 +36,13 @@ public class SecurityConfig {
                 configurer
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/api/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/").permitAll()
                         .anyRequest().authenticated()
 
 
         );
 
-        http.httpBasic(Customizer.withDefaults());
+//        http.httpBasic(Customizer.withDefaults());
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         http.sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.csrf(csrf->csrf.disable());
