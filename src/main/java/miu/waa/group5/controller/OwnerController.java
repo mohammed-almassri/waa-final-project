@@ -2,10 +2,8 @@ package miu.waa.group5.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import miu.waa.group5.dto.AuthRequest;
-import miu.waa.group5.dto.AuthResponse;
-import miu.waa.group5.dto.SignupRequest;
-import miu.waa.group5.dto.UserResponse;
+import miu.waa.group5.dto.*;
+import miu.waa.group5.service.OfferService;
 import miu.waa.group5.service.UserService;
 import miu.waa.group5.util.JWTUtil;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
-import miu.waa.group5.dto.PropertyRequest;
-import miu.waa.group5.dto.PropertyResponse;
 import miu.waa.group5.service.PropertyService;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -34,6 +30,7 @@ public class OwnerController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final PropertyService propertyService;
+    private final OfferService offerService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse>  createUser(@RequestBody @Valid SignupRequest userRequest) {
@@ -65,5 +62,25 @@ public class OwnerController {
         List<PropertyResponse> propertyResponses = propertyService.findByOwner();
         return ResponseEntity.ok(propertyResponses);
     }
+
+    @GetMapping("offers")
+    public ResponseEntity<List<OwnerOffersResponse>> getOffers() {
+        List<OwnerOffersResponse> offersResponses = offerService.findByOwner();
+        return ResponseEntity.ok(offersResponses);
+    }
+    @PatchMapping("offers/{id}")
+    public ResponseEntity<OfferJudgeResponse> judgeOffer(@RequestBody OfferJudgeRequest offerJudgeRequest, @PathVariable("id") Long id) {
+        OfferJudgeResponse offerJudgeResponse = offerService.judgeOffer(offerJudgeRequest, id);
+        return ResponseEntity.ok(offerJudgeResponse);
+    }
+
+    @PatchMapping("offers/{id}/finalize")
+    public ResponseEntity<OfferFinalizeRequest> finalizeOffer(@RequestBody OfferFinalizeRequest offerFinalizeRequest, @PathVariable("id") Long id) {
+        OfferFinalizeResponse offerFinalizeResponse = offerService.finalizeOffer(offerFinalizeRequest, id);
+        return ResponseEntity.ok(offerFinalizeRequest);
+
+    }
+
+
 
 }
