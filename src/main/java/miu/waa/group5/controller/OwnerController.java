@@ -32,7 +32,7 @@ public class OwnerController {
     private final PropertyService propertyService;
     private final OfferService offerService;
 
-    @PostMapping("/register")
+    @PostMapping("/signup")
     public ResponseEntity<AuthResponse>  createUser(@RequestBody @Valid SignupRequest userRequest) {
         var user = userService.registerUser(userRequest,"OWNER");
         String jwt = jwtUtil.generateToken(userRequest.getEmail());
