@@ -8,8 +8,12 @@ import miu.waa.group5.repository.UserRepository;
 import miu.waa.group5.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -35,6 +39,9 @@ public class UserServiceImpl implements UserService {
         u.setEmail(request.getEmail());
         u.setImageUrl(request.getImageURL());
         u.setName(request.getName());
+        if(role.equals("OWNER")) {
+            u.setApproved(false);
+        }
         return modelMapper.map(userRepo.save(u), UserResponse.class);
     }
 
@@ -59,5 +66,36 @@ public class UserServiceImpl implements UserService {
 
         // Convert the saved user entity to UserResponse and return it
         return modelMapper.map(savedUser, UserResponse.class);
+    }
+
+    @Override
+    public Page<UserResponse> findByRole(String role, Pageable pageable) {
+        var users = userRepo.findByRole(role,pageable);
+        return users.map(user -> modelMapper.map(user, UserResponse.class));
+    }
+
+    @Override
+    public void toggleUserActivation(Long id) {
+        Optional<User> userOptional = userRepo.findById(id);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setActive(!user.isActive());
+            userRepo.save(user);
+        } else {
+            throw new RuntimeException("User not found");
+        }
+    }
+
+    @Override
+    public void approveUser(Long id) {
+        Optional<User> userOptional = userRepo.findById(id);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setApproved(true);
+            userRepo.save(user);
+        } else {
+            throw new RuntimeException("User not found");
+        }
     }
 }

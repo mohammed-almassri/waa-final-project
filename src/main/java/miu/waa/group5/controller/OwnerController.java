@@ -8,6 +8,7 @@ import miu.waa.group5.service.UserService;
 import miu.waa.group5.util.JWTUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,13 +41,12 @@ public class OwnerController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody @Valid AuthRequest request) {
-        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
             UserResponse user = userService.findByName(request.getEmail());
             String jwt = jwtUtil.generateToken(request.getEmail());
             return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(),user.getName(), user.getImageUrl()));
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(401).build(); // Unauthorized
-        }
     }
 
 

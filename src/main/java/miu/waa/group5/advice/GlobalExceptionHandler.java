@@ -1,14 +1,17 @@
 package miu.waa.group5.advice;
 
 import miu.waa.group5.dto.base.BaseResponse;
+import miu.waa.group5.dto.base.ErrorResponse;
 import miu.waa.group5.dto.base.ValidationErrorResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.security.core.AuthenticationException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,16 +40,32 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setMessage(ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
+        ErrorResponse response = new ErrorResponse(
+                "Authentication failed",
+                ex.getMessage()
+        );
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<BaseResponse<Void>> handleGenericException(Exception ex) {
-        String message = "An error occurred";
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+        String exMsg = null;
         if (!"prod".equalsIgnoreCase(activeProfile)) {
-            message = ex.getMessage();
+            exMsg = ex.getMessage();
         }
 
-        BaseResponse<Void> response = new BaseResponse<>(
-                message,
-                null
+        ErrorResponse response = new ErrorResponse(
+                "An error occurred",
+                exMsg
         );
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
