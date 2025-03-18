@@ -1,5 +1,11 @@
 package miu.waa.group5.controller;
 
+
+import lombok.RequiredArgsConstructor;
+import miu.waa.group5.dto.OfferRequest;
+import miu.waa.group5.dto.OfferResponse;
+import miu.waa.group5.service.OfferService;
+import org.springframework.http.ResponseEntity;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import miu.waa.group5.dto.AuthRequest;
@@ -21,9 +27,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/customers")
 public class CustomerController {
 
+
+    private final OfferService offerService;    
     private final JWTUtil jwtUtil;
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
+  
+    @PostMapping("/offers")
+    public ResponseEntity<OfferResponse> createOffer(@RequestBody OfferRequest offerRequest) {
+        OfferResponse offerResponse = offerService.createOffer(offerRequest);
+        return ResponseEntity.ok(offerResponse);
+    }
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse>  createUser(@RequestBody @Valid SignupRequest userRequest) {
