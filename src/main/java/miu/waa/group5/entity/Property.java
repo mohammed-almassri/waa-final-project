@@ -60,7 +60,6 @@ public class Property {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    @OneToMany
-    @JoinColumn(name = "property_id", nullable = true)
+    @ManyToMany
     private List<Media> medias;
 }
