@@ -27,7 +27,8 @@ public class JwtFilter extends OncePerRequestFilter {
             "/api/customers/login",
             "/api/customers/signup",
             "/actuator/health",
-            "/"
+            "/",
+            "/test"
     );
 
 
@@ -40,8 +41,8 @@ public class JwtFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
         System.out.println(path);
         System.out.println(EXCLUDED_PATHS.contains(path));
-        if (EXCLUDED_PATHS.contains(path)) {
-            filterChain.doFilter(request, response); // Skip JWT validation for these paths
+        if (!path.startsWith("/api") || EXCLUDED_PATHS.contains(path)) {
+            filterChain.doFilter(request, response);
             return;
         }
 

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -33,4 +34,7 @@ public class Offer {
 
     @Column(columnDefinition = "TEXT")
     private String message;
+
+    @OneToMany(mappedBy = "offer")
+    private List<Message> messages;
 }
