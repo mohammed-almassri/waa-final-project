@@ -10,22 +10,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @RestController
-@RequestMapping("/api/v1/media")
+@RequestMapping("/api/media")
 public class MediaController {
 
     @Autowired
     private MediaService mediaService;
 
     @PostMapping("/upload")
-    public ResponseEntity<UploadResponse> uploadFile(@RequestParam("file") MultipartFile file)  {
-        try{
+    public UploadResponse uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
             String url = mediaService.uploadMedia(file);
-            return ResponseEntity.ok(new UploadResponse(url));
-        }
-        catch(Exception e){
-            return ResponseEntity.status(400).build();
-        }
+            return new UploadResponse(url);
+
     }
 
 //    @GetMapping("/{id}")
