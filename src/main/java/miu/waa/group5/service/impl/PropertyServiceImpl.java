@@ -21,6 +21,8 @@ import miu.waa.group5.service.PropertyService;
 import miu.waa.group5.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -143,6 +145,12 @@ public class PropertyServiceImpl implements PropertyService {
         Optional<HomeType> homeType = HomeType.getEnumByString(propertyRequest.getHomeType());
         homeType.ifPresent(property::setHomeType);
         return property;
+    }
+
+    @Override
+    public Page<PropertyResponse> findAll(Pageable pageable) {
+        var properties = propertyRepository.findAll(pageable);
+        return properties.map(p->modelMapper.map(p,PropertyResponse.class));
     }
 
 
