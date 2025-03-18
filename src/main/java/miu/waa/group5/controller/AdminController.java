@@ -18,9 +18,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/admins")
 @RequiredArgsConstructor
-public class AuthController {
+public class AdminController {
 
     private final JWTUtil jwtUtil;
     private final UserService userService;
