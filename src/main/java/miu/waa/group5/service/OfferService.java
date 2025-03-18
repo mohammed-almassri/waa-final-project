@@ -11,4 +11,5 @@ public interface OfferService {
     public List<OwnerOffersResponse> findByOwner();
     public OfferJudgeResponse judgeOffer(OfferJudgeRequest offerJudgeRequest, long id);
     public OfferFinalizeResponse finalizeOffer(OfferFinalizeRequest offerFinalizeRequest, long id);
+    public List<OfferListResponse> getAllOffers();
 }

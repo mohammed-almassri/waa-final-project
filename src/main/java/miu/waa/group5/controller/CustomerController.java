@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import miu.waa.group5.dto.*;
 import miu.waa.group5.entity.HomeType;
+import miu.waa.group5.entity.Offer;
 import miu.waa.group5.service.FavoritesService;
 import miu.waa.group5.service.OfferService;
 import miu.waa.group5.service.PropertyService;
@@ -99,5 +100,11 @@ public class CustomerController {
     public ResponseEntity<List<PropertyResponse>> getCustomerFavorites() {
         List<PropertyResponse> favorites = favoritesService.getCustomerFavorites();
         return ResponseEntity.ok(favorites);
+    }
+
+    @GetMapping("/offers")
+    public ResponseEntity<List<OfferListResponse>> getAllOffers() {
+        List<OfferListResponse> offers = offerService.getAllOffers();
+        return ResponseEntity.ok(offers);
     }
 }
