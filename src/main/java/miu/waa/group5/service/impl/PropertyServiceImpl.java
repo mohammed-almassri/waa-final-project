@@ -138,7 +138,7 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
 
-    private Property convertToEntity(PropertyRequest propertyRequest) {
+    public Property convertToEntity(PropertyRequest propertyRequest) {
         Property property = modelMapper.map(propertyRequest, Property.class);
         Optional<HomeType> homeType = HomeType.getEnumByString(propertyRequest.getHomeType());
         homeType.ifPresent(property::setHomeType);
@@ -146,7 +146,7 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
 
-    private PropertyResponse convertToDto(Property property) {
+    public PropertyResponse convertToDto(Property property) {
         PropertyResponse propertyResponse = modelMapper.map(property, PropertyResponse.class);
         propertyResponse.setHomeType(property.getHomeType().getReadableName());
         List<String> urls = property.getMedias().stream().map(Media::getUrl).toList();

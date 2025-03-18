@@ -1,5 +1,6 @@
 package miu.waa.group5.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -54,4 +55,8 @@ public class Property {
 
     @ManyToMany
     private List<Media> medias;
+
+    @Enumerated(EnumType.ORDINAL)
+    private StatusType status;
+
 }

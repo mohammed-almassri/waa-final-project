@@ -17,11 +17,8 @@ public interface PropertyService {
 
     public PropertyResponse createProperty(PropertyRequest propertyRequest);
     public List<PropertyResponse> findByOwner();
-    private Property convertToEntity(PropertyRequest propertyRequest) {
-        return null;
-    }
 
-    private PropertyResponse convertToDto(PropertyResponse propertyResponse) {
-        return null;
-    }
+    public Property convertToEntity(PropertyRequest propertyRequest);
+
+    public PropertyResponse convertToDto(Property property);
 }
