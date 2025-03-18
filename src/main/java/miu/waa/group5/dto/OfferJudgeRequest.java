@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OfferJudgeRequest {
-    @NotNull(message = "isAccepted can not be null.")
-    private boolean isAccepted;
+    @NotNull(message = "isAccepted is required")
+    private Boolean isAccepted;
 }

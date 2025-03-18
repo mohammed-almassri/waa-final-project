@@ -10,10 +10,7 @@ import miu.waa.group5.dto.PropertyDTO;
 import miu.waa.group5.dto.PropertyRequest;
 import miu.waa.group5.dto.PropertyResponse;
 import miu.waa.group5.dto.UserResponse;
-import miu.waa.group5.entity.HomeType;
-import miu.waa.group5.entity.Media;
-import miu.waa.group5.entity.Property;
-import miu.waa.group5.entity.User;
+import miu.waa.group5.entity.*;
 import miu.waa.group5.repository.MediaRepository;
 import miu.waa.group5.repository.PropertyRepository;
 import miu.waa.group5.repository.UserRepository;
@@ -117,12 +114,15 @@ public class PropertyServiceImpl implements PropertyService {
     @Transactional
     public PropertyResponse createProperty(PropertyRequest propertyRequest) {
         Property property = convertToEntity(propertyRequest);
+        List<Media> medias = property.getMedias() != null ? property.getMedias() : new ArrayList<>();
         propertyRequest.getImageURLs().forEach((url) -> {
             Media media = mediaRepository.findMediaByUrl(url);
             if (media != null && !property.getMedias().contains(media)) {
-                property.getMedias().add(media);
+                medias.add(media);
             }
         });
+        property.setMedias(medias);
+        property.setStatus(StatusType.AVAILABLE);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("no user with the username" + username));
@@ -157,6 +157,7 @@ public class PropertyServiceImpl implements PropertyService {
     public PropertyResponse convertToDto(Property property) {
         PropertyResponse propertyResponse = modelMapper.map(property, PropertyResponse.class);
         propertyResponse.setHomeType(property.getHomeType().getReadableName());
+        propertyResponse.setStatus(property.getStatus().getReadableName());
         List<String> urls = property.getMedias().stream().map(Media::getUrl).toList();
         propertyResponse.setImageURLs(urls);
         propertyResponse.setOwnerId(property.getOwner().getId());
