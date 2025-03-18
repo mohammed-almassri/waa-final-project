@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OwnerSignupRequest {
+public class SignupRequest {
 
     @NotBlank(message = "Name is required")
     private String name;

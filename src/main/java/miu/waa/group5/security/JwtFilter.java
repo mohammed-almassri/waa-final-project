@@ -21,8 +21,11 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
     private static final List<String> EXCLUDED_PATHS = Arrays.asList(
-            "/api/v1/auth/register",
-            "/api/v1/auth/login",
+            "/api/admins/login",
+            "/api/owners/login",
+            "/api/owners/register",
+            "/api/customers/login",
+            "/api/customers/register",
             "/actuator/health"
     );
 
@@ -34,11 +37,12 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         String path = request.getServletPath();
+        System.out.println(path);
+        System.out.println(EXCLUDED_PATHS.contains(path));
         if (EXCLUDED_PATHS.contains(path)) {
             filterChain.doFilter(request, response); // Skip JWT validation for these paths
             return;
         }
-
 
         var token = extractTokenFromRequest(request);
 

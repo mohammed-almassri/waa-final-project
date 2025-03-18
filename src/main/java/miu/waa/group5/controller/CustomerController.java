@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/owners")
-public class OwnerController {
+@RequestMapping("/api/customers")
+public class CustomerController {
 
     private final JWTUtil jwtUtil;
     private final UserService userService;
@@ -27,13 +27,14 @@ public class OwnerController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse>  createUser(@RequestBody @Valid SignupRequest userRequest) {
-        var user = userService.registerUser(userRequest,"OWNER");
+        var user = userService.registerUser(userRequest,"CUSTOMER");
         String jwt = jwtUtil.generateToken(userRequest.getEmail());
         return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(),user.getName(), user.getImageUrl()));
     }
 
+
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody @Valid AuthRequest request) {
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
         try {
             UserResponse user = userService.findByName(request.getEmail());
             String jwt = jwtUtil.generateToken(request.getEmail());

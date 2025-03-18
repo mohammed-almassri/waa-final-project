@@ -1,6 +1,6 @@
 package miu.waa.group5.service.impl;
 
-import miu.waa.group5.dto.AuthRequest;
+import miu.waa.group5.dto.SignupRequest;
 import miu.waa.group5.dto.UserRequest;
 import miu.waa.group5.dto.UserResponse;
 import miu.waa.group5.entity.User;
@@ -25,12 +25,16 @@ public class UserServiceImpl implements UserService {
         this.modelMapper = modelMapper;
     }
 
-    public UserResponse registerUser(AuthRequest authRequest) {
+    //TODO: role should be an enum
+    public UserResponse registerUser(SignupRequest request, String role) {
         var u = new User();
         u.setEnabled(true);
-        u.setRole("STUDENT");
-        u.setPassword(passwordEncoder.encode(authRequest.getPassword()));
-        u.setEmail(authRequest.getEmail());
+        u.setRole(role);
+        System.out.println(request.getPassword());
+        u.setPassword(passwordEncoder.encode(request.getPassword()));
+        u.setEmail(request.getEmail());
+        u.setImageUrl(request.getImageURL());
+        u.setName(request.getName());
         return modelMapper.map(userRepo.save(u), UserResponse.class);
     }
 
