@@ -2,10 +2,9 @@ package miu.waa.group5.service;
 
 import miu.waa.group5.dto.PropertyDTO;
 import miu.waa.group5.entity.HomeType;
+import miu.waa.group5.dto.PropertyRequest;
+import miu.waa.group5.dto.PropertyResponse;
 import miu.waa.group5.entity.Property;
-import miu.waa.group5.repository.PropertyRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -15,4 +14,14 @@ public interface PropertyService {
                                      Integer minBedroomCount, Integer maxBedroomCount, Integer minBathroomCount,
                                      Integer maxBathroomCount, List<HomeType> homeTypes,
                                      Boolean hasParking, Boolean hasPool, Boolean hasAC);
+
+    public PropertyResponse createProperty(PropertyRequest propertyRequest);
+    public List<PropertyResponse> findByOwner();
+    private Property convertToEntity(PropertyRequest propertyRequest) {
+        return null;
+    }
+
+    private PropertyResponse convertToDto(PropertyResponse propertyResponse) {
+        return null;
+    }
 }
