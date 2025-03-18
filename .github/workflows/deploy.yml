@@ -1,0 +1,57 @@
+name: Deploy WAA to AWS
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: us-east-1
+  S3_BUCKET_NAME: mlms-artifacts
+  JAR_FILE: group5-0.0.1-SNAPSHOT.jar
+  LAUNCH_TEMPLATE_NAME: mlms-launch
+  ASG_NAME: mlms-asg
+
+jobs:
+  build:
+    name: Build WAA jar file
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '17'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build JAR with Maven
+        run: |
+          mvn clean install -DskipTests
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Upload JAR to S3
+        run: |
+          aws s3 cp target/${{ env.JAR_FILE }} s3://${{ env.S3_BUCKET_NAME }}/
+
+      - name: Start instance refresh
+        run: |
+          aws autoscaling start-instance-refresh \
+          --auto-scaling-group-name ${{ env.ASG_NAME }} \
+          --preferences MinHealthyPercentage=90
