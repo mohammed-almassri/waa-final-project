@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OfferServiceImpl implements OfferService {
@@ -106,6 +107,27 @@ public class OfferServiceImpl implements OfferService {
 
     }
 
+    @Transactional
+    @Override
+    public List<OfferListResponse> getAllOffers() {
+        return offerRepository.findAll().stream()
+                .map(this::mapToOfferListResponse)
+                .collect(Collectors.toList());
+    }
+
+    private OfferListResponse mapToOfferListResponse(Offer offer) {
+        Property property = offer.getProperty();
+        PropertySummaryResponse propertyResponse = new PropertySummaryResponse(
+                property.getId(), property.getTitle(), property.getPrice());
+
+        return new OfferListResponse(
+                offer.getId(),
+                propertyResponse,
+                offer.getMessage(),
+                offer.getOfferedPrice(),
+                offer.getIsAccepted()
+        );
+    }
 
 
 }
