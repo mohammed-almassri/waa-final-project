@@ -43,6 +43,8 @@ public class UserServiceImpl implements UserService {
         return u.map(user -> modelMapper.map(user, UserResponse.class)).orElseThrow(() -> new RuntimeException("no user with the username" + username));
     }
 
+
+
     @Override
     public UserResponse updateUser(Long id, UserRequest userRequest) {
         // Fetch the user by ID from repository

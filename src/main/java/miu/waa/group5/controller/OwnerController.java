@@ -16,14 +16,23 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
+import miu.waa.group5.dto.PropertyRequest;
+import miu.waa.group5.dto.PropertyResponse;
+import miu.waa.group5.service.PropertyService;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/owners")
 public class OwnerController {
 
+
     private final JWTUtil jwtUtil;
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
+    private final PropertyService propertyService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse>  createUser(@RequestBody @Valid SignupRequest userRequest) {
@@ -42,4 +51,19 @@ public class OwnerController {
             return ResponseEntity.status(401).build(); // Unauthorized
         }
     }
+
+
+
+    @PostMapping("properties")
+    public ResponseEntity<PropertyResponse> createProperty(@RequestBody  @Valid PropertyRequest propertyRequest) {
+        PropertyResponse propertyResponse = propertyService.createProperty(propertyRequest);
+        return ResponseEntity.ok(propertyResponse);
+    }
+
+    @GetMapping("properties")
+    public ResponseEntity<List<PropertyResponse>> getProperties() {
+        List<PropertyResponse> propertyResponses = propertyService.findByOwner();
+        return ResponseEntity.ok(propertyResponses);
+    }
+
 }
