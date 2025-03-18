@@ -17,38 +17,8 @@ import java.util.List;
 
 @Validated
 @RestController
-@RequestMapping("/api/customers/properties")
+@RequestMapping("/api")
 public class PropertyController {
 
-    @Autowired
-    private PropertyService propertyService;
 
-    @GetMapping
-    public ResponseEntity<List<PropertyDTO>> getProperties(
-            @RequestParam(required = false) String city,
-            @RequestParam(required = false) String state,
-            @RequestParam(required = false) @Min(value = 0, message = "minPrice can not be negative") Double minPrice,
-            @RequestParam(required = false) @Min(value = 0, message = "maxPrice can not be negative") Double maxPrice,
-            @RequestParam(required = false) @Min(value = 0, message = "minBedroomCount can not be negative") Integer minBedroomCount,
-            @RequestParam(required = false) @Min(value = 0, message = "maxBedroomCount can not be negative") Integer maxBedroomCount,
-            @RequestParam(required = false) @Min(value = 0, message = "minBathroomCount can not be negative") Integer minBathroomCount,
-            @RequestParam(required = false) @Min(value = 0, message = "maxBathroomCount can not be negative") Integer maxBathroomCount,
-            @RequestParam(required = false) String homeType,  // comma-separated list
-            @RequestParam(required = false) Boolean hasParking,
-            @RequestParam(required = false) Boolean hasPool,
-            @RequestParam(required = false) Boolean hasAC
-    ) {
-        List<HomeType> homeTypes = null;
-        if (homeType != null && !homeType.isEmpty()) {
-            homeTypes = Arrays.stream(homeType.split(","))
-                    .map(HomeType::valueOf)
-                    .toList();
-        }
-
-        List<PropertyDTO> properties = propertyService.findProperties(
-                city, state, minPrice, maxPrice, minBedroomCount, maxBedroomCount,
-                minBathroomCount, maxBathroomCount, homeTypes, hasParking, hasPool, hasAC
-        );
-        return ResponseEntity.ok(properties);
-    }
 }
