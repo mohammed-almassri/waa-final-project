@@ -2,14 +2,13 @@ package miu.waa.group5.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import miu.waa.group5.dto.AuthRequest;
-import miu.waa.group5.dto.AuthResponse;
-import miu.waa.group5.dto.SignupRequest;
-import miu.waa.group5.dto.UserResponse;
+import miu.waa.group5.dto.*;
+import miu.waa.group5.service.OfferService;
 import miu.waa.group5.service.UserService;
 import miu.waa.group5.util.JWTUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
-import miu.waa.group5.dto.PropertyRequest;
-import miu.waa.group5.dto.PropertyResponse;
 import miu.waa.group5.service.PropertyService;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -33,8 +30,9 @@ public class OwnerController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final PropertyService propertyService;
+    private final OfferService offerService;
 
-    @PostMapping("/register")
+    @PostMapping("/signup")
     public ResponseEntity<AuthResponse>  createUser(@RequestBody @Valid SignupRequest userRequest) {
         var user = userService.registerUser(userRequest,"OWNER");
         String jwt = jwtUtil.generateToken(userRequest.getEmail());
@@ -43,13 +41,12 @@ public class OwnerController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody @Valid AuthRequest request) {
-        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
             UserResponse user = userService.findByName(request.getEmail());
             String jwt = jwtUtil.generateToken(request.getEmail());
             return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(),user.getName(), user.getImageUrl()));
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(401).build(); // Unauthorized
-        }
     }
 
 
@@ -65,5 +62,25 @@ public class OwnerController {
         List<PropertyResponse> propertyResponses = propertyService.findByOwner();
         return ResponseEntity.ok(propertyResponses);
     }
+
+    @GetMapping("offers")
+    public ResponseEntity<List<OwnerOffersResponse>> getOffers() {
+        List<OwnerOffersResponse> offersResponses = offerService.findByOwner();
+        return ResponseEntity.ok(offersResponses);
+    }
+    @PatchMapping("offers/{id}")
+    public ResponseEntity<OfferJudgeResponse> judgeOffer(@RequestBody OfferJudgeRequest offerJudgeRequest, @PathVariable("id") Long id) {
+        OfferJudgeResponse offerJudgeResponse = offerService.judgeOffer(offerJudgeRequest, id);
+        return ResponseEntity.ok(offerJudgeResponse);
+    }
+
+    @PatchMapping("offers/{id}/finalize")
+    public ResponseEntity<OfferFinalizeRequest> finalizeOffer(@RequestBody OfferFinalizeRequest offerFinalizeRequest, @PathVariable("id") Long id) {
+        OfferFinalizeResponse offerFinalizeResponse = offerService.finalizeOffer(offerFinalizeRequest, id);
+        return ResponseEntity.ok(offerFinalizeRequest);
+
+    }
+
+
 
 }

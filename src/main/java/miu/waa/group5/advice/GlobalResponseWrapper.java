@@ -1,7 +1,9 @@
 package miu.waa.group5.advice;
 
 import miu.waa.group5.dto.base.BaseResponse;
+import miu.waa.group5.dto.base.ErrorResponse;
 import miu.waa.group5.dto.base.PaginatedResponse;
+import miu.waa.group5.dto.base.ValidationErrorResponse;
 import org.springframework.core.MethodParameter;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -31,40 +33,24 @@ public class GlobalResponseWrapper implements ResponseBodyAdvice<Object> {
                                   Class selectedConverterType,
                                   ServerHttpRequest request,
                                   ServerHttpResponse response) {
+        if(body instanceof ErrorResponse || body instanceof ValidationErrorResponse || body instanceof BaseResponse<?>) {
+            return body;
+        }
+        if (body instanceof Page) {
+            Page<?> page = (Page<?>) body;
 
-        if (body instanceof ResponseEntity) {
-            Object responseBody = ((ResponseEntity<?>) body).getBody();
+            Map<String, Object> meta = new HashMap<>();
+            meta.put("totalPages", page.getTotalPages());
+            meta.put("totalElements", page.getTotalElements());
+            meta.put("currentPage", page.getNumber());
 
-            if (responseBody instanceof Page) {
-                Page<?> page = (Page<?>) responseBody;
-
-                Map<String, Object> meta = new HashMap<>();
-                meta.put("totalPages", page.getTotalPages());
-                meta.put("totalElements", page.getTotalElements());
-                meta.put("currentPage", page.getNumber());
-
-                return new ResponseEntity<>(new PaginatedResponse<>(
-                        "success",
-                        page.getContent(),
-                        meta
-                ), ((ResponseEntity<?>) body).getStatusCode());
-            }
-
-            if (responseBody instanceof List) {
-                // Handle list response
-                return new ResponseEntity<>(new BaseResponse<>(
-                        "success",
-                        responseBody
-                ), ((ResponseEntity<?>) body).getStatusCode());
-            }
-
-            // Handle single object response
-            return new ResponseEntity<>(new BaseResponse<>(
+            return new PaginatedResponse<>(
                     "success",
-                    responseBody
-            ), ((ResponseEntity<?>) body).getStatusCode());
+                    page.getContent(),
+                    meta
+            );
         }
 
-        return new BaseResponse<>("success", body);
+        return new BaseResponse<>("success",body);
     }
 }

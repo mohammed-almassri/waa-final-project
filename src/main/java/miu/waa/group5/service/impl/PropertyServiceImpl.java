@@ -21,6 +21,8 @@ import miu.waa.group5.service.PropertyService;
 import miu.waa.group5.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -138,15 +140,21 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
 
-    private Property convertToEntity(PropertyRequest propertyRequest) {
+    public Property convertToEntity(PropertyRequest propertyRequest) {
         Property property = modelMapper.map(propertyRequest, Property.class);
         Optional<HomeType> homeType = HomeType.getEnumByString(propertyRequest.getHomeType());
         homeType.ifPresent(property::setHomeType);
         return property;
     }
 
+    @Override
+    public Page<PropertyResponse> findAll(Pageable pageable) {
+        var properties = propertyRepository.findAll(pageable);
+        return properties.map(p->modelMapper.map(p,PropertyResponse.class));
+    }
 
-    private PropertyResponse convertToDto(Property property) {
+    @Override
+    public PropertyResponse convertToDto(Property property) {
         PropertyResponse propertyResponse = modelMapper.map(property, PropertyResponse.class);
         propertyResponse.setHomeType(property.getHomeType().getReadableName());
         List<String> urls = property.getMedias().stream().map(Media::getUrl).toList();

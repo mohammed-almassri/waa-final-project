@@ -15,6 +15,7 @@ import miu.waa.group5.service.UserService;
 import miu.waa.group5.util.JWTUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +42,7 @@ public class CustomerController {
         return ResponseEntity.ok(offerResponse);
     }
 
-    @PostMapping("/register")
+    @PostMapping("/signup")
     public ResponseEntity<AuthResponse>  createUser(@RequestBody @Valid SignupRequest userRequest) {
         var user = userService.registerUser(userRequest,"CUSTOMER");
         String jwt = jwtUtil.generateToken(userRequest.getEmail());
@@ -51,13 +52,12 @@ public class CustomerController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
-        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
             UserResponse user = userService.findByName(request.getEmail());
             String jwt = jwtUtil.generateToken(request.getEmail());
             return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(),user.getName(), user.getImageUrl()));
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(401).build(); // Unauthorized
-        }
     }
 
     @GetMapping("/properties")

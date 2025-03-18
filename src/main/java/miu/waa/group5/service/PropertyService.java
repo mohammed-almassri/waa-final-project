@@ -5,6 +5,8 @@ import miu.waa.group5.entity.HomeType;
 import miu.waa.group5.dto.PropertyRequest;
 import miu.waa.group5.dto.PropertyResponse;
 import miu.waa.group5.entity.Property;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -17,11 +19,10 @@ public interface PropertyService {
 
     public PropertyResponse createProperty(PropertyRequest propertyRequest);
     public List<PropertyResponse> findByOwner();
-    private Property convertToEntity(PropertyRequest propertyRequest) {
-        return null;
-    }
 
-    private PropertyResponse convertToDto(PropertyResponse propertyResponse) {
-        return null;
-    }
+    public Property convertToEntity(PropertyRequest propertyRequest);
+
+    public PropertyResponse convertToDto(Property property);
+
+    Page<PropertyResponse> findAll(Pageable pageable);
 }
