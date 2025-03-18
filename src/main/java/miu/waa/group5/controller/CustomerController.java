@@ -40,7 +40,7 @@ public class CustomerController {
         return ResponseEntity.ok(offerResponse);
     }
 
-    @PostMapping("/register")
+    @PostMapping("/signup")
     public ResponseEntity<AuthResponse>  createUser(@RequestBody @Valid SignupRequest userRequest) {
         var user = userService.registerUser(userRequest,"CUSTOMER");
         String jwt = jwtUtil.generateToken(userRequest.getEmail());

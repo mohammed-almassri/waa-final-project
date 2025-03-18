@@ -23,9 +23,9 @@ public class JwtFilter extends OncePerRequestFilter {
     private static final List<String> EXCLUDED_PATHS = Arrays.asList(
             "/api/admins/login",
             "/api/owners/login",
-            "/api/owners/register",
+            "/api/owners/signup",
             "/api/customers/login",
-            "/api/customers/register",
+            "/api/customers/signup",
             "/actuator/health"
     );
 
