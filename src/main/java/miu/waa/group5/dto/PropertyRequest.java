@@ -53,6 +53,6 @@ public class PropertyRequest {
     private boolean hasPool;
     private boolean hasAC;
 
-    @NotEmpty
+    @NotNull(message = "imageURLs are required")
     private List<String> imageURLs;
 }

@@ -75,9 +75,9 @@ public class OwnerController {
     }
 
     @PatchMapping("offers/{id}/finalize")
-    public ResponseEntity<OfferFinalizeRequest> finalizeOffer(@RequestBody OfferFinalizeRequest offerFinalizeRequest, @PathVariable("id") Long id) {
+    public ResponseEntity<OfferFinalizeResponse> finalizeOffer(@RequestBody OfferFinalizeRequest offerFinalizeRequest, @PathVariable("id") Long id) {
         OfferFinalizeResponse offerFinalizeResponse = offerService.finalizeOffer(offerFinalizeRequest, id);
-        return ResponseEntity.ok(offerFinalizeRequest);
+        return ResponseEntity.ok(offerFinalizeResponse);
 
     }
 

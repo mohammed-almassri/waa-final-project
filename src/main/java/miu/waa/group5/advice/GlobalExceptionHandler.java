@@ -16,7 +16,7 @@ import org.springframework.security.core.AuthenticationException;
 import java.util.HashMap;
 import java.util.Map;
 
-@RestControllerAdvice
+//@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @Value("${spring.profiles.active:default}")
