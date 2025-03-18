@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -32,4 +33,6 @@ public class PropertyResponse {
     private LocalDateTime processedAt;
     private Long ownerId;
     private String status;
+
+    private List<String> imageURLs;
 }
