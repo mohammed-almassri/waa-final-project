@@ -94,4 +94,10 @@ public class CustomerController {
         FavoriteResponse response = favoritesService.addFavorite(request);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/favorites")
+    public ResponseEntity<List<PropertyResponse>> getCustomerFavorites() {
+        List<PropertyResponse> favorites = favoritesService.getCustomerFavorites();
+        return ResponseEntity.ok(favorites);
+    }
 }
