@@ -1,7 +1,9 @@
 package miu.waa.group5.advice;
 
 import miu.waa.group5.dto.base.BaseResponse;
+import miu.waa.group5.dto.base.ErrorResponse;
 import miu.waa.group5.dto.base.PaginatedResponse;
+import miu.waa.group5.dto.base.ValidationErrorResponse;
 import org.springframework.core.MethodParameter;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -32,6 +34,7 @@ public class GlobalResponseWrapper implements ResponseBodyAdvice<Object> {
                                   ServerHttpRequest request,
                                   ServerHttpResponse response) {
 
+
         if (body instanceof ResponseEntity) {
             Object responseBody = ((ResponseEntity<?>) body).getBody();
 
@@ -58,11 +61,24 @@ public class GlobalResponseWrapper implements ResponseBodyAdvice<Object> {
                 ), ((ResponseEntity<?>) body).getStatusCode());
             }
 
+            var status = ((ResponseEntity<?>) body).getStatusCode();
+            var message = "";
+            if (status.is2xxSuccessful()) {
+                message = "success";
+            }
+            else if (status.is4xxClientError() || status.is5xxServerError()) {
+                message = "error";
+            }
+
+
             // Handle single object response
             return new ResponseEntity<>(new BaseResponse<>(
-                    "success",
+                    message,
                     responseBody
             ), ((ResponseEntity<?>) body).getStatusCode());
+        }
+        if(body instanceof ErrorResponse || body instanceof ValidationErrorResponse) {
+            return body;
         }
 
         return new BaseResponse<>("success", body);

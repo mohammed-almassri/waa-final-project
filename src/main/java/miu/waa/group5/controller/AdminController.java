@@ -32,16 +32,18 @@ public class AdminController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-            );
-            UserResponse user = userService.findByName(request.getEmail());
-            String jwt = jwtUtil.generateToken(request.getEmail());
-        return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(),user.getName(), user.getImageUrl()));
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(401).build(); // Unauthorized
-        }
+//          try{
+              authenticationManager.authenticate(
+                      new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+              );
+              UserResponse user = userService.findByName(request.getEmail());
+              String jwt = jwtUtil.generateToken(request.getEmail());
+              return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(),user.getName(), user.getImageUrl()));
+//          }
+//          catch (Exception e) {
+//              System.out.println("Exception: " + e.getClass());
+//          }
+//          return null;
     }
 
     @GetMapping("/me")
