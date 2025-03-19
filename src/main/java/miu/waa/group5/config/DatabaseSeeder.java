@@ -38,12 +38,17 @@ public class DatabaseSeeder {
     @Bean
     public CommandLineRunner seedDatabase() {
         return args -> {
+            if(userRepository.findByEmail("admin@example.com").isEmpty()) {
+                User admin = new User(null, "admin@example.com",
+                        "$2a$12$iAVHXi.WTI9E4G.YV8m91e7KkgyvTDxFx4C4JKe8YJQEjM5g5iliu"
+                        , "ADMIN", true, "Admin User", null, true, true, LocalDateTime.now(), LocalDateTime.now());
+                userRepository.save(admin);
+            }
+
             if (offerRepository.count() == 0) {
-                User admin = new User(null, "admin@example.com", passwordEncoder.encode("Aa123123"), "ADMIN", true, "Admin User", null, true, true, LocalDateTime.now(), LocalDateTime.now());
                 User owner = new User(null, "owner@example.com", passwordEncoder.encode("Aa123123"), "OWNER", true, "Owner User", null, true, true, LocalDateTime.now(), LocalDateTime.now());
                 User customer = new User(null, "customer@example.com", passwordEncoder.encode("Aa123123"), "CUSTOMER", true, "Customer User", null, true, true, LocalDateTime.now(), LocalDateTime.now());
-
-                userRepository.saveAll(Arrays.asList(admin, owner, customer));
+                userRepository.saveAll(Arrays.asList( owner, customer));
 
                 Property property1 = new Property();
                 property1.setTitle("Beautiful Villa");
