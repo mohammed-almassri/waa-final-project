@@ -40,6 +40,7 @@ public class SecurityConfig {
                 configurer
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/api/admins/login").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/api/owners/login", "/api/owners/signup").permitAll()
                         .requestMatchers("/api/customers/login", "/api/customers/signup").permitAll()
                         .requestMatchers("/api/admins/**").hasRole("ADMIN")
@@ -86,7 +87,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // Allow requests from React dev server
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000","http://localhost:5500")); // Allow requests from React dev server
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true); // Allow credentials such as cookies

@@ -94,10 +94,10 @@ public class DatabaseSeeder {
 
                 propertyRepository.saveAll(Arrays.asList(property1, property2));
 
-                Offer offer1 = new Offer(null, property1, customer, 450000.0, false, LocalDateTime.now(), null, "Interested in this beautiful villa!");
-                Offer offer2 = new Offer(null, property2, customer, 320000.0, false, LocalDateTime.now(), null, "I love this condo, I want to make an offer!");
+//                Offer offer1 = new Offer(null, property1, customer, 450000.0, false, LocalDateTime.now(), null, "Interested in this beautiful villa!");
+//                Offer offer2 = new Offer(null, property2, customer, 320000.0, false, LocalDateTime.now(), null, "I love this condo, I want to make an offer!");
 
-                offerRepository.saveAll(Arrays.asList(offer1, offer2));
+//                offerRepository.saveAll(Arrays.asList(offer1, offer2));
 
                 Favorites favorite1 = new Favorites(null, customer, property1);
                 Favorites favorite2 = new Favorites(null, customer, property2);
