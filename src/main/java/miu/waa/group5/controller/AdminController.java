@@ -58,7 +58,7 @@ public class AdminController {
         return ResponseEntity.ok(user);
     }
 
-    @PutMapping("/me")
+    @PatchMapping("/me")
     public ResponseEntity<UserResponse> update(@RequestBody @Valid UserRequest userRequest) {
         try {
             // Fetch the authenticated user's id (if you are using Spring Security)
@@ -95,13 +95,13 @@ public class AdminController {
         return pPage;
     }
 
-    @PutMapping("/owners/{id}/approve")
+    @PatchMapping("/owners/{id}/approve")
     public BaseResponse<String> approveOwner(@PathVariable long id) {
         userService.approveUser(id);
         return new BaseResponse<>("success","Approved");
     }
 
-    @PutMapping("/owners/{id}/activate")
+    @PatchMapping("/owners/{id}/activate")
     public BaseResponse<String> activateOwner(@PathVariable long id) {
         userService.toggleUserActivation(id);
         return new BaseResponse<>("success","Activated");

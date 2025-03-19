@@ -5,10 +5,12 @@ import miu.waa.group5.repository.FavoritesRepository;
 import miu.waa.group5.repository.OfferRepository;
 import miu.waa.group5.repository.PropertyRepository;
 import miu.waa.group5.repository.UserRepository;
+import miu.waa.group5.service.OfferService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -21,22 +23,25 @@ public class DatabaseSeeder {
     private final PropertyRepository propertyRepository;
     private final OfferRepository offerRepository;
     private final FavoritesRepository favoritesRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public DatabaseSeeder(UserRepository userRepository, PropertyRepository propertyRepository,
-                          OfferRepository offerRepository, FavoritesRepository favoritesRepository) {
+                          OfferRepository offerRepository, FavoritesRepository favoritesRepository,
+                          PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.propertyRepository = propertyRepository;
         this.offerRepository = offerRepository;
         this.favoritesRepository = favoritesRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Bean
     public CommandLineRunner seedDatabase() {
         return args -> {
             if (offerRepository.count() == 0) {
-                User admin = new User(null, "admin@example.com", new BCryptPasswordEncoder().encode("Aa123123"), "ADMIN", true, "Admin User", null, true, true, LocalDateTime.now(), LocalDateTime.now());
-                User owner = new User(null, "owner@example.com", new BCryptPasswordEncoder().encode("Aa123123"), "OWNER", true, "Owner User", null, true, true, LocalDateTime.now(), LocalDateTime.now());
-                User customer = new User(null, "customer@example.com", new BCryptPasswordEncoder().encode("Aa123123"), "CUSTOMER", true, "Customer User", null, true, true, LocalDateTime.now(), LocalDateTime.now());
+                User admin = new User(null, "admin@example.com", passwordEncoder.encode("Aa123123"), "ADMIN", true, "Admin User", null, true, true, LocalDateTime.now(), LocalDateTime.now());
+                User owner = new User(null, "owner@example.com", passwordEncoder.encode("Aa123123"), "OWNER", true, "Owner User", null, true, true, LocalDateTime.now(), LocalDateTime.now());
+                User customer = new User(null, "customer@example.com", passwordEncoder.encode("Aa123123"), "CUSTOMER", true, "Customer User", null, true, true, LocalDateTime.now(), LocalDateTime.now());
 
                 userRepository.saveAll(Arrays.asList(admin, owner, customer));
 
