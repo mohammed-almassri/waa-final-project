@@ -1,6 +1,7 @@
 package miu.waa.group5.config;
 
 import lombok.RequiredArgsConstructor;
+import miu.waa.group5.exception.CustomAccessDeniedHandler;
 import miu.waa.group5.security.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,11 +12,13 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -28,6 +31,7 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtFilter jwtFilter;
 
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
 
     @Bean
@@ -35,18 +39,27 @@ public class SecurityConfig {
         http.authorizeHttpRequests( configurer ->
                 configurer
                         .requestMatchers("/actuator/health").permitAll()
-                        .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/api/admins/login").permitAll()
+                        .requestMatchers("/api/owners/login", "/api/owners/signup").permitAll()
+                        .requestMatchers("/api/customers/login", "/api/customers/signup").permitAll()
+                        .requestMatchers("/api/admins/**").hasRole("ADMIN")
+                        .requestMatchers("/api/owners/**").hasRole("OWNER")
+                        .requestMatchers("/api/customers/**").hasRole("CUSTOMER")
                         .requestMatchers(HttpMethod.GET,"/").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/media/upload").permitAll()
                         .anyRequest().authenticated()
-
-
         );
+        http.exceptionHandling(exceptions -> exceptions
+                .accessDeniedHandler(accessDeniedHandler));
 
-//        http.httpBasic(Customizer.withDefaults());
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         http.sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.csrf(csrf->csrf.disable());
         http.cors(Customizer.withDefaults()); // Enable CORS using the custom configuration below
+
+//        var ctx = SecurityContextHolder.getContext();
+//        System.out.println(ctx.getAuthentication().getPrincipal());
+
         return http.build();
     }
 

@@ -38,11 +38,14 @@ public class DatabaseSeeder {
     @Bean
     public CommandLineRunner seedDatabase() {
         return args -> {
-            if (offerRepository.count() == 0) {
-                User admin = new User(null, "admin@example.com", passwordEncoder.encode("Aa123123"), "ADMIN", true, "Admin User", null, true, true, LocalDateTime.now(), LocalDateTime.now());
-                User owner = new User(null, "owner@example.com", passwordEncoder.encode("Aa123123"), "OWNER", true, "Owner User", null, true, true, LocalDateTime.now(), LocalDateTime.now());
-                User customer = new User(null, "customer@example.com", passwordEncoder.encode("Aa123123"), "CUSTOMER", true, "Customer User", null, true, true, LocalDateTime.now(), LocalDateTime.now());
 
+
+            if (offerRepository.count() == 0) {
+                User admin = new User(null, "admin@example.com",
+                        "$2a$12$iAVHXi.WTI9E4G.YV8m91e7KkgyvTDxFx4C4JKe8YJQEjM5g5iliu" //Aa123123
+                        , "ADMIN", true, "Admin User", null, true, true, LocalDateTime.now(), LocalDateTime.now());
+                User owner = new User(null, "owner@example.com", "$2a$12$iAVHXi.WTI9E4G.YV8m91e7KkgyvTDxFx4C4JKe8YJQEjM5g5iliu", "OWNER", true, "Owner User", null, true, true, LocalDateTime.now(), LocalDateTime.now());
+                User customer = new User(null, "customer@example.com", "$2a$12$iAVHXi.WTI9E4G.YV8m91e7KkgyvTDxFx4C4JKe8YJQEjM5g5iliu", "CUSTOMER", true, "Customer User", null, true, true, LocalDateTime.now(), LocalDateTime.now());
                 userRepository.saveAll(Arrays.asList(admin, owner, customer));
 
                 Property property1 = new Property();
