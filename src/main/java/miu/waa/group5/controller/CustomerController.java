@@ -90,6 +90,12 @@ public class CustomerController {
         return ResponseEntity.ok(properties);
     }
 
+    @GetMapping("/properties/{id}")
+    public ResponseEntity<PropertyResponse> getProperty(@PathVariable long id) {
+        PropertyResponse propertyResponse = propertyService.findById(id);
+        return ResponseEntity.ok(propertyResponse);
+    }
+
     @PostMapping("/favorites")
     public ResponseEntity<FavoriteResponse> addFavorite( @Valid @RequestBody FavoriteRequest request) {
         FavoriteResponse response = favoritesService.addFavorite(request);
