@@ -6,6 +6,9 @@ import miu.waa.group5.dto.*;
 import miu.waa.group5.service.OfferService;
 import miu.waa.group5.service.UserService;
 import miu.waa.group5.util.JWTUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -58,15 +61,19 @@ public class OwnerController {
     }
 
     @GetMapping("properties")
-    public ResponseEntity<List<PropertyResponse>> getProperties() {
-        List<PropertyResponse> propertyResponses = propertyService.findByOwner();
-        return ResponseEntity.ok(propertyResponses);
+    public Page<PropertyResponse> getProperties(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    )  {
+        Pageable pageable = PageRequest.of(page, size);
+        return propertyService.findByOwner(pageable);
     }
 
     @GetMapping("offers")
-    public ResponseEntity<List<OwnerOffersResponse>> getOffers() {
-        List<OwnerOffersResponse> offersResponses = offerService.findByOwner();
-        return ResponseEntity.ok(offersResponses);
+    public Page<OwnerOffersResponse> getOffers(@RequestParam(defaultValue = "0") int page,
+                                               @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return offerService.findByOwner(pageable);
     }
     @PatchMapping("offers/{id}")
     public ResponseEntity<OfferJudgeResponse> judgeOffer(@RequestBody OfferJudgeRequest offerJudgeRequest, @PathVariable("id") Long id) {

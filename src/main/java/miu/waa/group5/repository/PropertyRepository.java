@@ -13,7 +13,7 @@ import java.util.List;
 public interface PropertyRepository  extends JpaRepository<Property,Long> {
 
 
-    List<Property> findByOwner_Email(String ownerEmail);
+    Page<Property> findByOwner_Email(String ownerEmail, Pageable pageable);
 
     Page<Property> findAll(Pageable pageable);
 }

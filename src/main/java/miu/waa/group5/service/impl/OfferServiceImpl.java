@@ -13,14 +13,14 @@ import miu.waa.group5.service.OfferService;
 import miu.waa.group5.service.PropertyService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class OfferServiceImpl implements OfferService {
@@ -57,16 +57,14 @@ public class OfferServiceImpl implements OfferService {
         return modelMapper.map(offer, OfferResponse.class);
     }
 
-    public List<OwnerOffersResponse> findByOwner() {
+    public Page<OwnerOffersResponse> findByOwner(Pageable pageable) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        List<Offer> offers = offerRepository.findByProperty_Owner_Email(username);
-        List<OwnerOffersResponse> ownerOffersResponses = new ArrayList<>();
-        offers.forEach(offer -> {
+        Page<Offer> offers = offerRepository.findByProperty_Owner_Email(username, pageable);
+        Page<OwnerOffersResponse> ownerOffersResponses = offers.map(offer -> {
             OwnerOffersResponse ownerOffersResponse = modelMapper.map(offer, OwnerOffersResponse.class);
-
             ownerOffersResponse.setProperty(PropertyDTO.fromEntity(offer.getProperty()));
-            ownerOffersResponses.add(ownerOffersResponse);
+            return ownerOffersResponse;
         });
         return ownerOffersResponses;
 
@@ -118,14 +116,12 @@ public class OfferServiceImpl implements OfferService {
 
     @Transactional
     @Override
-    public List<OfferListResponse> getAllOffers() {
+    public Page<OfferListResponse> getAllOffers(Pageable pageable) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User customer = userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("no user with the username" + username));
-
-        return offerRepository.findByCustomerId(customer.getId()).stream()
-                .map(this::mapToOfferListResponse)
-                .collect(Collectors.toList());
+        Page<Offer> offers = offerRepository.findByCustomerId(customer.getId(), pageable);
+        return offers.map(this::mapToOfferListResponse);
     }
 
     private OfferListResponse mapToOfferListResponse(Offer offer) {
