@@ -39,10 +39,8 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         String path = request.getServletPath();
-        System.out.println(path);
-        System.out.println(EXCLUDED_PATHS.contains(path));
-        //TODO: unsafe matcher
-        if (EXCLUDED_PATHS.stream().anyMatch(path::startsWith)) {
+        //TODO: awful code
+        if ("/".equals(path) || EXCLUDED_PATHS.stream().filter(p->!p.equals("/")).anyMatch(path::startsWith)) {
             filterChain.doFilter(request, response); // Skip JWT validation for these paths
             return;
         }
