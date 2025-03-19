@@ -36,7 +36,7 @@ public class OwnerController {
     public ResponseEntity<AuthResponse>  createUser(@RequestBody @Valid SignupRequest userRequest) {
         var user = userService.registerUser(userRequest,"OWNER");
         String jwt = jwtUtil.generateToken(userRequest.getEmail());
-        return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(),user.getName(), user.getImageUrl()));
+        return ResponseEntity.ok(new AuthResponse(jwt, user.getId(), user.getEmail(),user.getName(), user.getImageUrl()));
     }
 
     @PostMapping("/login")
@@ -46,7 +46,7 @@ public class OwnerController {
             );
             UserResponse user = userService.findByName(request.getEmail());
             String jwt = jwtUtil.generateToken(request.getEmail());
-            return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(),user.getName(), user.getImageUrl()));
+            return ResponseEntity.ok(new AuthResponse(jwt, user.getId(), user.getEmail(),user.getName(), user.getImageUrl()));
     }
 
 

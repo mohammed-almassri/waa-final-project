@@ -47,7 +47,7 @@ public class CustomerController {
     public ResponseEntity<AuthResponse>  createUser(@RequestBody @Valid SignupRequest userRequest) {
         var user = userService.registerUser(userRequest,"CUSTOMER");
         String jwt = jwtUtil.generateToken(userRequest.getEmail());
-        return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(),user.getName(), user.getImageUrl()));
+        return ResponseEntity.ok(new AuthResponse(jwt, user.getId(), user.getEmail(),user.getName(), user.getImageUrl()));
     }
 
 
@@ -58,7 +58,7 @@ public class CustomerController {
             );
             UserResponse user = userService.findByName(request.getEmail());
             String jwt = jwtUtil.generateToken(request.getEmail());
-            return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(),user.getName(), user.getImageUrl()));
+            return ResponseEntity.ok(new AuthResponse(jwt, user.getId(), user.getEmail(),user.getName(), user.getImageUrl()));
     }
 
     @GetMapping("/properties")
