@@ -20,4 +20,6 @@ public interface OfferRepository extends JpaRepository<Offer,Long> {
     List<Offer> findPendingOffersByProperty_Id(@Param("property_id") Long property_id);
 
     List<Offer> findAllByIdNotAndProperty_Id(@Param("id") Long id, @Param("property_id") Long property_id);
+
+    List<Offer> findByCustomerId(Long customerId);
 }
