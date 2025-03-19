@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import miu.waa.group5.service.PropertyService;
 import org.springframework.web.bind.annotation.*;
+
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -43,10 +45,17 @@ public class OwnerController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody @Valid AuthRequest request) {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-            );
+    public ResponseEntity<AuthResponse> login(@RequestBody @Valid AuthRequest request) throws AccessDeniedException {
+        var authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
+
+        if (authentication.isAuthenticated() &&
+                authentication.getAuthorities().stream().anyMatch(
+                        authority -> authority.getAuthority().equals("ROLE_OWNER"))) {
+        } else {
+            throw new AccessDeniedException("You do not have the required role");
+        }
             UserResponse user = userService.findByName(request.getEmail());
             String jwt = jwtUtil.generateToken(request.getEmail());
             return ResponseEntity.ok(new AuthResponse(jwt, user.getId(), user.getEmail(),user.getName(), user.getImageUrl()));

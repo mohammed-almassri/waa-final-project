@@ -40,6 +40,8 @@ public class SecurityConfig {
                 configurer
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/api/admins/login").permitAll()
+                        .requestMatchers("/api/customers/properties").permitAll()
+                        .requestMatchers("/api/customers/properties/**").permitAll()
                         .requestMatchers("/api/owners/login", "/api/owners/signup").permitAll()
                         .requestMatchers("/api/customers/login", "/api/customers/signup").permitAll()
                         .requestMatchers("/api/admins/**").hasRole("ADMIN")

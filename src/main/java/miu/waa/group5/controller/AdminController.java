@@ -20,6 +20,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -35,14 +36,21 @@ public class AdminController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) throws AccessDeniedException {
 //          try{
-              authenticationManager.authenticate(
-                      new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-              );
-              UserResponse user = userService.findByName(request.getEmail());
-              String jwt = jwtUtil.generateToken(request.getEmail());
-              return ResponseEntity.ok(new AuthResponse(jwt, user.getId(), user.getEmail(),user.getName(), user.getImageUrl()));
+        var authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
+
+        if (authentication.isAuthenticated() &&
+                authentication.getAuthorities().stream().anyMatch(
+                        authority -> authority.getAuthority().equals("ROLE_ADMIN"))) {
+        } else {
+            throw new AccessDeniedException("You do not have the required role");
+        }
+        UserResponse user = userService.findByName(request.getEmail());
+        String jwt = jwtUtil.generateToken(request.getEmail());
+        return ResponseEntity.ok(new AuthResponse(jwt, user.getId(), user.getEmail(), user.getName(), user.getImageUrl()));
 //          }
 //          catch (Exception e) {
 //              System.out.println("Exception: " + e.getClass());
@@ -62,7 +70,7 @@ public class AdminController {
     public ResponseEntity<UserResponse> update(@RequestBody @Valid UserRequest userRequest) {
         try {
             // Fetch the authenticated user's id (if you are using Spring Security)
-            String username =  SecurityContextHolder.getContext().getAuthentication().getName();
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
             var user = userService.findByName(username);
             // Update the user details via the service layer
             UserResponse updatedUser = userService.updateUser(user.getId(), userRequest);
@@ -78,7 +86,7 @@ public class AdminController {
     @GetMapping("/owners")
     public Page<UserResponse> getOwners(
             @RequestParam(defaultValue = "0") int page,
-    @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
         Page<UserResponse> ownersPage = userService.findByRole("OWNER", pageable);
@@ -106,6 +114,6 @@ public class AdminController {
     public BaseResponse<UserResponse> activateOwner(@PathVariable long id) {
         userService.toggleUserActivation(id);
         UserResponse user = userService.findById(id);
-        return new BaseResponse<>("success",user);
+        return new BaseResponse<>("success", user);
     }
 }
