@@ -45,12 +45,12 @@ public class User {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @PrePersist
-    @PreUpdate
-    private void hashPassword() {
-        if (password != null) {
-            this.password = new BCryptPasswordEncoder().encode(password);
-        }
-    }
+//    @PrePersist
+//    @PreUpdate
+//    private void hashPassword() {
+//        if (password != null) {
+//            this.password = new BCryptPasswordEncoder().encode(password);
+//        }
+//    }
 
 }

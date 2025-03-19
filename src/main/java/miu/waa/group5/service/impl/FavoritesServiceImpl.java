@@ -13,6 +13,8 @@ import miu.waa.group5.repository.UserRepository;
 import miu.waa.group5.service.FavoritesService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -56,24 +58,22 @@ public class FavoritesServiceImpl implements FavoritesService {
 
     @Transactional
     @Override
-    public List<PropertyResponse> getCustomerFavorites() {
+    public Page<PropertyResponse> getCustomerFavorites(Pageable pageable) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("no user with the username" + username));
 
-        List<Favorites> favorites = favoritesRepository.findByCustomerId(user.getId());
+        Page<Favorites> favorites = favoritesRepository.findByCustomerId(user.getId(), pageable);
 
-        List<Property> properties = favorites.stream()
-                .map(Favorites::getProperty)
-                .toList();
+        Page<Property> properties = favorites.map(Favorites::getProperty);
 
-        return properties.stream().map(this::convertToDto).toList();
+        return properties.map(this::convertToDto);
     }
 
     private PropertyResponse convertToDto(Property property) {
         PropertyResponse propertyResponse = modelMapper.map(property, PropertyResponse.class);
-        propertyResponse.setHomeType(property.getHomeType().getReadableName());
+        propertyResponse.setHomeType(property.getHomeType()==null? "":property.getHomeType().getReadableName());
         List<String> urls = property.getMedias().stream().map(Media::getUrl).toList();
         propertyResponse.setImageURLs(urls);
         propertyResponse.setOwnerId(property.getOwner().getId());

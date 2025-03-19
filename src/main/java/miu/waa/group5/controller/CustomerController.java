@@ -5,9 +5,13 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import miu.waa.group5.dto.*;
 import miu.waa.group5.entity.HomeType;
+import miu.waa.group5.entity.Offer;
 import miu.waa.group5.service.FavoritesService;
 import miu.waa.group5.service.OfferService;
 import miu.waa.group5.service.PropertyService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +50,7 @@ public class CustomerController {
     public ResponseEntity<AuthResponse>  createUser(@RequestBody @Valid SignupRequest userRequest) {
         var user = userService.registerUser(userRequest,"CUSTOMER");
         String jwt = jwtUtil.generateToken(userRequest.getEmail());
-        return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(),user.getName(), user.getImageUrl()));
+        return ResponseEntity.ok(new AuthResponse(jwt, user.getId(), user.getEmail(),user.getName(), user.getImageUrl()));
     }
 
 
@@ -57,11 +61,11 @@ public class CustomerController {
             );
             UserResponse user = userService.findByName(request.getEmail());
             String jwt = jwtUtil.generateToken(request.getEmail());
-            return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(),user.getName(), user.getImageUrl()));
+            return ResponseEntity.ok(new AuthResponse(jwt, user.getId(), user.getEmail(),user.getName(), user.getImageUrl()));
     }
 
     @GetMapping("/properties")
-    public ResponseEntity<List<PropertyDTO>> getProperties(
+    public Page<PropertyDTO> getProperties(
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String state,
             @RequestParam(required = false) @Min(value = 0, message = "minPrice can not be negative") Double minPrice,
@@ -73,20 +77,28 @@ public class CustomerController {
             @RequestParam(required = false) String homeType,  // comma-separated list
             @RequestParam(required = false) Boolean hasParking,
             @RequestParam(required = false) Boolean hasPool,
-            @RequestParam(required = false) Boolean hasAC
+            @RequestParam(required = false) Boolean hasAC,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+
     ) {
+        Pageable pageable = PageRequest.of(page, size);
         List<HomeType> homeTypes = null;
         if (homeType != null && !homeType.isEmpty()) {
             homeTypes = Arrays.stream(homeType.split(","))
                     .map(HomeType::valueOf)
                     .toList();
         }
-
-        List<PropertyDTO> properties = propertyService.findProperties(
+        return propertyService.findProperties(
                 city, state, minPrice, maxPrice, minBedroomCount, maxBedroomCount,
-                minBathroomCount, maxBathroomCount, homeTypes, hasParking, hasPool, hasAC
+                minBathroomCount, maxBathroomCount, homeTypes, hasParking, hasPool, hasAC, pageable
         );
-        return ResponseEntity.ok(properties);
+    }
+
+    @GetMapping("/properties/{id}")
+    public ResponseEntity<PropertyResponse> getProperty(@PathVariable long id) {
+        PropertyResponse propertyResponse = propertyService.findById(id);
+        return ResponseEntity.ok(propertyResponse);
     }
 
     @PostMapping("/favorites")
@@ -96,8 +108,16 @@ public class CustomerController {
     }
 
     @GetMapping("/favorites")
-    public ResponseEntity<List<PropertyResponse>> getCustomerFavorites() {
-        List<PropertyResponse> favorites = favoritesService.getCustomerFavorites();
-        return ResponseEntity.ok(favorites);
+    public Page<PropertyResponse> getCustomerFavorites(@RequestParam(defaultValue = "0") int page,
+                                                       @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return favoritesService.getCustomerFavorites(pageable);
+    }
+
+    @GetMapping("/offers")
+    public Page<OfferListResponse> getAllOffers(@RequestParam(defaultValue = "0") int page,
+                                                @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return (Page<OfferListResponse>) offerService.getAllOffers(pageable);
     }
 }

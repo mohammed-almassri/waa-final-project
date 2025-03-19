@@ -3,6 +3,8 @@ package miu.waa.group5.repository;
 import miu.waa.group5.entity.Media;
 import miu.waa.group5.entity.Offer;
 import miu.waa.group5.entity.StatusType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,10 +16,13 @@ import java.util.List;
 public interface OfferRepository extends JpaRepository<Offer,Long> {
 
 
-    List<Offer> findByProperty_Owner_Name(@Param("username") String username);
+    Page<Offer> findByProperty_Owner_Email(@Param("username") String username, Pageable pageable);
 
-    @Query("SELECT o FROM Offer o JOIN Property p WHERE p.id = :property_id AND o.isAccepted = null")
+    @Query("SELECT o FROM Offer o JOIN Property p ON p.id = o.property.id WHERE p.id = :property_id AND o.processedAt = null")
     List<Offer> findPendingOffersByProperty_Id(@Param("property_id") Long property_id);
 
+
     List<Offer> findAllByIdNotAndProperty_Id(@Param("id") Long id, @Param("property_id") Long property_id);
+
+    Page<Offer> findByCustomerId(Long customerId, Pageable pageable);
 }

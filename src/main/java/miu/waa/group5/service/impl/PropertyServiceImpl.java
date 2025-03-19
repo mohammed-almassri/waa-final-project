@@ -10,10 +10,7 @@ import miu.waa.group5.dto.PropertyDTO;
 import miu.waa.group5.dto.PropertyRequest;
 import miu.waa.group5.dto.PropertyResponse;
 import miu.waa.group5.dto.UserResponse;
-import miu.waa.group5.entity.HomeType;
-import miu.waa.group5.entity.Media;
-import miu.waa.group5.entity.Property;
-import miu.waa.group5.entity.User;
+import miu.waa.group5.entity.*;
 import miu.waa.group5.repository.MediaRepository;
 import miu.waa.group5.repository.PropertyRepository;
 import miu.waa.group5.repository.UserRepository;
@@ -22,6 +19,7 @@ import miu.waa.group5.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -52,16 +50,17 @@ public class PropertyServiceImpl implements PropertyService {
     List<Predicate> predicates = new ArrayList<>();
 
     @Override
-    public List<PropertyDTO> findProperties(String city, String state, Double minPrice, Double maxPrice,
+    public Page<PropertyDTO> findProperties(String city, String state, Double minPrice, Double maxPrice,
                                             Integer minBedroomCount, Integer maxBedroomCount, Integer minBathroomCount,
                                             Integer maxBathroomCount, List<HomeType> homeTypes,
-                                            Boolean hasParking, Boolean hasPool, Boolean hasAC) {
+                                            Boolean hasParking, Boolean hasPool, Boolean hasAC, Pageable pageable) {
 
 
             // 1. grab CriteriaBuilder
             CriteriaBuilder cb = entityManager.getCriteriaBuilder();
             CriteriaQuery<Property> cq = cb.createQuery(Property.class);
             Root<Property> property = cq.from(Property.class);
+
 
 
             // 2. Add query conditions dynamically based on the parameters passed in
@@ -106,23 +105,29 @@ public class PropertyServiceImpl implements PropertyService {
             cq.where(predicates.toArray(new Predicate[0]));
 
             // 4. return result
-            List<Property> properties = entityManager.createQuery(cq).getResultList();
+            List<Property> properties = entityManager.createQuery(cq)
+                    .setFirstResult(pageable.getPageNumber())
+                    .setMaxResults(pageable.getPageSize()).getResultList();
+            Page<Property> pageProperties = new PageImpl<Property>(properties, pageable, properties.size());
 
-            return properties.stream()
-                    .map(PropertyDTO::fromEntity)
-                    .toList();
+            return pageProperties
+                    .map(PropertyDTO::fromEntity);
 
     }
 
     @Transactional
     public PropertyResponse createProperty(PropertyRequest propertyRequest) {
         Property property = convertToEntity(propertyRequest);
+        List<Media> medias = property.getMedias() != null ? property.getMedias() : new ArrayList<>();
+        //TODO: query in loop
         propertyRequest.getImageURLs().forEach((url) -> {
             Media media = mediaRepository.findMediaByUrl(url);
-            if (media != null && !property.getMedias().contains(media)) {
-                property.getMedias().add(media);
+            if (media != null) {
+                medias.add(media);
             }
         });
+        property.setMedias(medias);
+        property.setStatus(StatusType.AVAILABLE);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("no user with the username" + username));
@@ -132,11 +137,16 @@ public class PropertyServiceImpl implements PropertyService {
 
     }
 
-    public List<PropertyResponse> findByOwner() {
+    public Page<PropertyResponse> findByOwner(Pageable pageable) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        List<Property> properties = propertyRepository.findByOwner_Email(username);
-        return properties.stream().map(this::convertToDto).toList();
+        Page<Property> properties = propertyRepository.findByOwner_Email(username, pageable);
+        return properties.map(this::convertToDto);
+    }
+
+    public PropertyResponse findById(long id) {
+        Property property = propertyRepository.findById(id).orElseThrow(() -> new RuntimeException("no property with id: " + id));
+        return convertToDto(property);
     }
 
 
@@ -156,7 +166,9 @@ public class PropertyServiceImpl implements PropertyService {
     @Override
     public PropertyResponse convertToDto(Property property) {
         PropertyResponse propertyResponse = modelMapper.map(property, PropertyResponse.class);
-        propertyResponse.setHomeType(property.getHomeType().getReadableName());
+        String homeType = property.getHomeType() != null ? property.getHomeType().getReadableName() : null;
+        propertyResponse.setHomeType(homeType);
+        propertyResponse.setStatus(property.getStatus().getReadableName());
         List<String> urls = property.getMedias().stream().map(Media::getUrl).toList();
         propertyResponse.setImageURLs(urls);
         propertyResponse.setOwnerId(property.getOwner().getId());

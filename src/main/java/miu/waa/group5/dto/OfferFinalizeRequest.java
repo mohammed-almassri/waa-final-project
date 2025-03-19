@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OfferFinalizeRequest {
-    private boolean isSold;
+    private Boolean isSold;
 }

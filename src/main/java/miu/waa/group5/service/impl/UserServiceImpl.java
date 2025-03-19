@@ -98,4 +98,9 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("User not found");
         }
     }
+
+    @Override
+    public UserResponse findById(Long id) {
+        return userRepo.findById(id).map(user -> modelMapper.map(user, UserResponse.class)).orElse(null);
+    }
 }

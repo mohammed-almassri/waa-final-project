@@ -36,6 +36,7 @@ public class Property {
     private Integer bedroomCount;
     private Integer bathroomCount;
 
+
     @Enumerated(EnumType.ORDINAL)
     private HomeType homeType; // House, Townhome, Condo, Apartment
 
@@ -57,6 +58,7 @@ public class Property {
     private List<Media> medias;
 
     @Enumerated(EnumType.ORDINAL)
+    @Column(nullable = false)
     private StatusType status;
 
 }

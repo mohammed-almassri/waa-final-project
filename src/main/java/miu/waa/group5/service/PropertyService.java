@@ -12,13 +12,14 @@ import java.util.List;
 
 
 public interface PropertyService {
-    List<PropertyDTO> findProperties(String city, String state, Double minPrice, Double maxPrice,
+    Page<PropertyDTO> findProperties(String city, String state, Double minPrice, Double maxPrice,
                                      Integer minBedroomCount, Integer maxBedroomCount, Integer minBathroomCount,
                                      Integer maxBathroomCount, List<HomeType> homeTypes,
-                                     Boolean hasParking, Boolean hasPool, Boolean hasAC);
+                                     Boolean hasParking, Boolean hasPool, Boolean hasAC, Pageable pageable);
 
     public PropertyResponse createProperty(PropertyRequest propertyRequest);
-    public List<PropertyResponse> findByOwner();
+    public Page<PropertyResponse> findByOwner(Pageable pageable);
+    public PropertyResponse findById(long id);
 
     public Property convertToEntity(PropertyRequest propertyRequest);
 

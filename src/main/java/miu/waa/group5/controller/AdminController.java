@@ -42,7 +42,7 @@ public class AdminController {
               );
               UserResponse user = userService.findByName(request.getEmail());
               String jwt = jwtUtil.generateToken(request.getEmail());
-              return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(),user.getName(), user.getImageUrl()));
+              return ResponseEntity.ok(new AuthResponse(jwt, user.getId(), user.getEmail(),user.getName(), user.getImageUrl()));
 //          }
 //          catch (Exception e) {
 //              System.out.println("Exception: " + e.getClass());
@@ -58,7 +58,7 @@ public class AdminController {
         return ResponseEntity.ok(user);
     }
 
-    @PutMapping("/me")
+    @PatchMapping("/me")
     public ResponseEntity<UserResponse> update(@RequestBody @Valid UserRequest userRequest) {
         try {
             // Fetch the authenticated user's id (if you are using Spring Security)
@@ -95,15 +95,17 @@ public class AdminController {
         return pPage;
     }
 
-    @PutMapping("/owners/{id}/approve")
-    public BaseResponse<String> approveOwner(@PathVariable long id) {
+    @PatchMapping("/owners/{id}/approve")
+    public BaseResponse<UserResponse> approveOwner(@PathVariable long id) {
         userService.approveUser(id);
-        return new BaseResponse<>("success","Approved");
+        UserResponse user = userService.findById(id);
+        return new BaseResponse<>("success", user);
     }
 
-    @PutMapping("/owners/{id}/activate")
-    public BaseResponse<String> activateOwner(@PathVariable long id) {
+    @PatchMapping("/owners/{id}/activate")
+    public BaseResponse<UserResponse> activateOwner(@PathVariable long id) {
         userService.toggleUserActivation(id);
-        return new BaseResponse<>("success","Activated");
+        UserResponse user = userService.findById(id);
+        return new BaseResponse<>("success",user);
     }
 }
