@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/api/media")
@@ -20,10 +24,46 @@ public class MediaController {
     private MediaService mediaService;
 
     @PostMapping("/upload")
-    public UploadResponse uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
-            String url = mediaService.uploadMedia(file);
-            return new UploadResponse(url);
+    public UploadResponse uploadMultipleFiles(@RequestParam("files") MultipartFile[] files) {
+        List<CompletableFuture<String>> uploadFutures = new ArrayList<>();
 
+        for (MultipartFile file : files) {
+            if (!file.isEmpty()) {
+                CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+                    try {
+                        return mediaService.uploadMedia(file);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to upload file: " + file.getOriginalFilename(), e);
+                    }
+                });
+                uploadFutures.add(future);
+            }
+        }
+
+        // Wait for all uploads to complete
+        CompletableFuture<Void> allDone = CompletableFuture.allOf(
+                uploadFutures.toArray(new CompletableFuture[0])
+        );
+
+        try {
+            // Block until all uploads are done
+            allDone.get();
+
+            // Collect results
+            List<String> urls = uploadFutures.stream()
+                    .map(future -> {
+                        try {
+                            return future.get();
+                        } catch (InterruptedException | ExecutionException e) {
+                            throw new RuntimeException("Error retrieving upload result", e);
+                        }
+                    })
+                    .toList();
+
+            return new UploadResponse(urls);
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException("Error processing uploads", e);
+        }
     }
 
 //    @GetMapping("/{id}")

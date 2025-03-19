@@ -119,9 +119,10 @@ public class PropertyServiceImpl implements PropertyService {
     public PropertyResponse createProperty(PropertyRequest propertyRequest) {
         Property property = convertToEntity(propertyRequest);
         List<Media> medias = property.getMedias() != null ? property.getMedias() : new ArrayList<>();
+        //TODO: query in loop
         propertyRequest.getImageURLs().forEach((url) -> {
             Media media = mediaRepository.findMediaByUrl(url);
-            if (media != null && !property.getMedias().contains(media)) {
+            if (media != null) {
                 medias.add(media);
             }
         });

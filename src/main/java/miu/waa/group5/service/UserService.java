@@ -14,4 +14,5 @@ public interface UserService {
     Page<UserResponse> findByRole(String role, Pageable pageable);
     public void toggleUserActivation(Long id);
     public void approveUser(Long id);
+    UserResponse findById(Long id);
 }

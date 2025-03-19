@@ -14,6 +14,8 @@ public class UserResponse {
     private String name;
     private String email;
     private String imageUrl;
+    private boolean isActive;
+    private boolean approved;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

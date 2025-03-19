@@ -96,14 +96,16 @@ public class AdminController {
     }
 
     @PatchMapping("/owners/{id}/approve")
-    public BaseResponse<String> approveOwner(@PathVariable long id) {
+    public BaseResponse<UserResponse> approveOwner(@PathVariable long id) {
         userService.approveUser(id);
-        return new BaseResponse<>("success","Approved");
+        UserResponse user = userService.findById(id);
+        return new BaseResponse<>("success", user);
     }
 
     @PatchMapping("/owners/{id}/activate")
-    public BaseResponse<String> activateOwner(@PathVariable long id) {
+    public BaseResponse<UserResponse> activateOwner(@PathVariable long id) {
         userService.toggleUserActivation(id);
-        return new BaseResponse<>("success","Activated");
+        UserResponse user = userService.findById(id);
+        return new BaseResponse<>("success",user);
     }
 }
