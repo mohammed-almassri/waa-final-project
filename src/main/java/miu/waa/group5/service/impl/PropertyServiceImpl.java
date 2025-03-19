@@ -19,6 +19,7 @@ import miu.waa.group5.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -49,16 +50,17 @@ public class PropertyServiceImpl implements PropertyService {
     List<Predicate> predicates = new ArrayList<>();
 
     @Override
-    public List<PropertyDTO> findProperties(String city, String state, Double minPrice, Double maxPrice,
+    public Page<PropertyDTO> findProperties(String city, String state, Double minPrice, Double maxPrice,
                                             Integer minBedroomCount, Integer maxBedroomCount, Integer minBathroomCount,
                                             Integer maxBathroomCount, List<HomeType> homeTypes,
-                                            Boolean hasParking, Boolean hasPool, Boolean hasAC) {
+                                            Boolean hasParking, Boolean hasPool, Boolean hasAC, Pageable pageable) {
 
 
             // 1. grab CriteriaBuilder
             CriteriaBuilder cb = entityManager.getCriteriaBuilder();
             CriteriaQuery<Property> cq = cb.createQuery(Property.class);
             Root<Property> property = cq.from(Property.class);
+
 
 
             // 2. Add query conditions dynamically based on the parameters passed in
@@ -103,11 +105,13 @@ public class PropertyServiceImpl implements PropertyService {
             cq.where(predicates.toArray(new Predicate[0]));
 
             // 4. return result
-            List<Property> properties = entityManager.createQuery(cq).getResultList();
+            List<Property> properties = entityManager.createQuery(cq)
+                    .setFirstResult(pageable.getPageNumber())
+                    .setMaxResults(pageable.getPageSize()).getResultList();
+            Page<Property> pageProperties = new PageImpl<Property>(properties, pageable, properties.size());
 
-            return properties.stream()
-                    .map(PropertyDTO::fromEntity)
-                    .toList();
+            return pageProperties
+                    .map(PropertyDTO::fromEntity);
 
     }
 
@@ -132,11 +136,11 @@ public class PropertyServiceImpl implements PropertyService {
 
     }
 
-    public List<PropertyResponse> findByOwner() {
+    public Page<PropertyResponse> findByOwner(Pageable pageable) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        List<Property> properties = propertyRepository.findByOwner_Email(username);
-        return properties.stream().map(this::convertToDto).toList();
+        Page<Property> properties = propertyRepository.findByOwner_Email(username, pageable);
+        return properties.map(this::convertToDto);
     }
 
     public PropertyResponse findById(long id) {
