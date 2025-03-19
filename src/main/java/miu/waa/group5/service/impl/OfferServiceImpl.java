@@ -119,7 +119,11 @@ public class OfferServiceImpl implements OfferService {
     @Transactional
     @Override
     public List<OfferListResponse> getAllOffers() {
-        return offerRepository.findAll().stream()
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User customer = userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("no user with the username" + username));
+
+        return offerRepository.findByCustomerId(customer.getId()).stream()
                 .map(this::mapToOfferListResponse)
                 .collect(Collectors.toList());
     }

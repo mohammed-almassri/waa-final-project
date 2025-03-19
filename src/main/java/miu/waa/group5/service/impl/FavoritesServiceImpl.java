@@ -73,7 +73,7 @@ public class FavoritesServiceImpl implements FavoritesService {
 
     private PropertyResponse convertToDto(Property property) {
         PropertyResponse propertyResponse = modelMapper.map(property, PropertyResponse.class);
-        propertyResponse.setHomeType(property.getHomeType().getReadableName());
+        propertyResponse.setHomeType(property.getHomeType()==null? "":property.getHomeType().getReadableName());
         List<String> urls = property.getMedias().stream().map(Media::getUrl).toList();
         propertyResponse.setImageURLs(urls);
         propertyResponse.setOwnerId(property.getOwner().getId());
