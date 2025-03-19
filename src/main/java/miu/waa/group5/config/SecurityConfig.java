@@ -39,16 +39,19 @@ public class SecurityConfig {
         http.authorizeHttpRequests( configurer ->
                 configurer
                         .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers("/api/admins/login").permitAll()
+                        .requestMatchers("/api/owners/login", "/api/owners/signup").permitAll()
+                        .requestMatchers("/api/customers/login", "/api/customers/signup").permitAll()
                         .requestMatchers("/api/admins/**").hasRole("ADMIN")
                         .requestMatchers("/api/owners/**").hasRole("OWNER")
                         .requestMatchers("/api/customers/**").hasRole("CUSTOMER")
                         .requestMatchers(HttpMethod.GET,"/").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/media/upload").permitAll()
                         .anyRequest().authenticated()
         );
         http.exceptionHandling(exceptions -> exceptions
                 .accessDeniedHandler(accessDeniedHandler));
 
-//        http.httpBasic(Customizer.withDefaults());
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         http.sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.csrf(csrf->csrf.disable());
