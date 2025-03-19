@@ -19,6 +19,7 @@ public interface PropertyService {
 
     public PropertyResponse createProperty(PropertyRequest propertyRequest);
     public List<PropertyResponse> findByOwner();
+    public PropertyResponse findById(long id);
 
     public Property convertToEntity(PropertyRequest propertyRequest);
 

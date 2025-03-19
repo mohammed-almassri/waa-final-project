@@ -139,6 +139,11 @@ public class PropertyServiceImpl implements PropertyService {
         return properties.stream().map(this::convertToDto).toList();
     }
 
+    public PropertyResponse findById(long id) {
+        Property property = propertyRepository.findById(id).orElseThrow(() -> new RuntimeException("no property with id: " + id));
+        return convertToDto(property);
+    }
+
 
     public Property convertToEntity(PropertyRequest propertyRequest) {
         Property property = modelMapper.map(propertyRequest, Property.class);
@@ -156,7 +161,8 @@ public class PropertyServiceImpl implements PropertyService {
     @Override
     public PropertyResponse convertToDto(Property property) {
         PropertyResponse propertyResponse = modelMapper.map(property, PropertyResponse.class);
-        propertyResponse.setHomeType(property.getHomeType().getReadableName());
+        String homeType = property.getHomeType() != null ? property.getHomeType().getReadableName() : null;
+        propertyResponse.setHomeType(homeType);
         propertyResponse.setStatus(property.getStatus().getReadableName());
         List<String> urls = property.getMedias().stream().map(Media::getUrl).toList();
         propertyResponse.setImageURLs(urls);
