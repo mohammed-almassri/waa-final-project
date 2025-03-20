@@ -67,6 +67,8 @@ public class PropertyServiceImpl implements PropertyService {
         // 2. Add query conditions dynamically based on the parameters passed in
         predicates.add(cb.equal(property.get("owner").get("isActive"), true));
 
+        predicates.add(cb.notEqual(property.get("status"), StatusType.SOLD));
+
         if (city != null) {
                 //predicates.add(cb.equal(property.get("city"), city));
                 predicates.add(cb.like(cb.lower(property.get("city")), "%" + city.toLowerCase() + "%"));
