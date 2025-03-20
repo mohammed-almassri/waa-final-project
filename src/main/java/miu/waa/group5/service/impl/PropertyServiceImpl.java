@@ -10,6 +10,7 @@ import miu.waa.group5.dto.PropertyDTO;
 import miu.waa.group5.dto.PropertyRequest;
 import miu.waa.group5.dto.PropertyResponse;
 import miu.waa.group5.entity.*;
+import miu.waa.group5.repository.FavoritesRepository;
 import miu.waa.group5.repository.MediaRepository;
 import miu.waa.group5.repository.PropertyRepository;
 import miu.waa.group5.repository.UserRepository;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PropertyServiceImpl implements PropertyService {
@@ -45,6 +47,8 @@ public class PropertyServiceImpl implements PropertyService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private FavoritesRepository favoritesRepository;
 
 
     @Override
@@ -107,8 +111,14 @@ public class PropertyServiceImpl implements PropertyService {
                 .setMaxResults(pageable.getPageSize()).getResultList();
         Page<Property> pageProperties = new PageImpl<Property>(properties, pageable, properties.size());
 
-        return pageProperties
-                .map(PropertyDTO::fromEntity);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        Optional<User> customer = userRepository.findByEmail(username);
+
+        return customer.map(user -> pageProperties
+                .map(p -> convertToDTOWithFavorite(p, user.getId()))).orElseGet(() -> pageProperties
+                .map(PropertyDTO::fromEntity));
 
     }
 
@@ -169,7 +179,19 @@ public class PropertyServiceImpl implements PropertyService {
 
     public PropertyResponse findById(long id) {
         Property property = propertyRepository.findById(id).orElseThrow(() -> new RuntimeException("no property with id: " + id));
-        return convertToDto(property);
+        PropertyResponse propertyResponse = convertToDto(property);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        Optional<User> customer = userRepository.findByEmail(username);
+
+        if (customer.isPresent()) {
+            boolean isFavorited = favoritesRepository.existsByCustomerIdAndPropertyId(customer.get().getId(), property.getId());
+            propertyResponse.setFavorited(isFavorited);
+            return propertyResponse;
+        }else{
+            return propertyResponse;
+        }
     }
 
     public void convertToEntity(PropertyRequest propertyRequest, Property destination) {
@@ -212,6 +234,14 @@ public class PropertyServiceImpl implements PropertyService {
         propertyResponse.setImageURLs(urls);
         propertyResponse.setOwnerId(property.getOwner().getId());
         return propertyResponse;
+    }
+
+    private PropertyDTO convertToDTOWithFavorite(Property property, Long customerId) {
+        PropertyDTO dto = PropertyDTO.fromEntity(property);
+        boolean isFavorited = favoritesRepository.existsByCustomerIdAndPropertyId(customerId, property.getId());
+        dto.setFavorited(isFavorited);
+
+        return dto;
     }
 
 }

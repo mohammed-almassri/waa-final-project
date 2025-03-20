@@ -35,4 +35,6 @@ public class PropertyResponse {
     private String status;
 
     private List<String> imageURLs;
+
+    private boolean isFavorited;
 }

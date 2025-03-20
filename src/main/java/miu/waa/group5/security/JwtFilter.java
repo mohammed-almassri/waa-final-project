@@ -26,7 +26,7 @@ public class JwtFilter extends OncePerRequestFilter {
             "/api/owners/signup",
             "/api/customers/login",
             "/api/customers/signup",
-            "/api/customers/properties",
+//            "/api/customers/properties",
             "/actuator/health",
             "/api/media/upload",
             "/"
@@ -43,6 +43,19 @@ public class JwtFilter extends OncePerRequestFilter {
         //TODO: awful code
         if ("/".equals(path) || EXCLUDED_PATHS.stream().filter(p->!p.equals("/")).anyMatch(path::startsWith)) {
             filterChain.doFilter(request, response); // Skip JWT validation for these paths
+            return;
+        }
+
+        if ("/api/customers/properties".equals(path)) {
+            var token = extractTokenFromRequest(request);
+            if (token != null) {
+                if (jwtUtil.validateToken(token)) {
+                    SecurityContextHolder.getContext().setAuthentication(jwtUtil.getAuthentication(token));
+                } else {
+                    throw new JwtException("Invalid JWT token");
+                }
+            }
+            filterChain.doFilter(request, response);
             return;
         }
 

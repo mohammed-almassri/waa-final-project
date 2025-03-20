@@ -11,4 +11,6 @@ import java.util.List;
 @Repository
 public interface FavoritesRepository extends JpaRepository<Favorites, Long> {
     Page<Favorites> findByCustomerId(Long customerId, Pageable pageable);
+
+    boolean existsByCustomerIdAndPropertyId(Long customerId, Long propertyId);
 }
