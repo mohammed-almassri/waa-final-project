@@ -30,6 +30,8 @@ public class PropertyDTO {
     private Boolean hasAC;
     private HomeType homeType;
 
+    private boolean isFavorited = false;
+
     public static PropertyDTO fromEntity(Property property) {
         PropertyDTO dto = new PropertyDTO();
         dto.setId(property.getId());
