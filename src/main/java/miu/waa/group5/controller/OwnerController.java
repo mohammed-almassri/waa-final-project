@@ -69,6 +69,17 @@ public class OwnerController {
         return ResponseEntity.ok(propertyResponse);
     }
 
+    @PutMapping("properties/{id}")
+    public ResponseEntity<PropertyResponse> updateProperty(@RequestBody @Valid PropertyRequest propertyRequest, @PathVariable Long id) {
+        PropertyResponse propertyResponse = propertyService.updateProperty(propertyRequest, id);
+        return ResponseEntity.ok(propertyResponse);
+    }
+
+    @DeleteMapping("properties/{id}")
+    public void deleteProperty(@PathVariable long id) {
+        propertyService.deleteProperty(id);
+    }
+
     @GetMapping("properties")
     public Page<PropertyResponse> getProperties(
             @RequestParam(defaultValue = "0") int page,

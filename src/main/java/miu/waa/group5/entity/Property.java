@@ -57,6 +57,10 @@ public class Property {
     @ManyToMany
     private List<Media> medias;
 
+    @OneToMany(mappedBy="property", fetch=FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Offer> offers;
+
+
     @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false)
     private StatusType status;

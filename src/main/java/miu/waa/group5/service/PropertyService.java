@@ -18,10 +18,14 @@ public interface PropertyService {
                                      Boolean hasParking, Boolean hasPool, Boolean hasAC, Pageable pageable);
 
     public PropertyResponse createProperty(PropertyRequest propertyRequest);
+    public PropertyResponse updateProperty(PropertyRequest propertyRequest, long id);
+    public void deleteProperty(long id);
     public Page<PropertyResponse> findByOwner(Pageable pageable);
     public PropertyResponse findById(long id);
 
+    public void validateOwner(Property property);
     public Property convertToEntity(PropertyRequest propertyRequest);
+    public void convertToEntity(PropertyRequest propertyRequest, Property destination);
 
     public PropertyResponse convertToDto(Property property);
 
