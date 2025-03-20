@@ -67,9 +67,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         String exMsg = null;
-        if (!"prod".equalsIgnoreCase(activeProfile)) {
+//        if (!"prod".equalsIgnoreCase(activeProfile)) {
             exMsg = ex.getMessage();
-        }
+//        }
 
         ErrorResponse response = new ErrorResponse(
                 "An error occurred",
