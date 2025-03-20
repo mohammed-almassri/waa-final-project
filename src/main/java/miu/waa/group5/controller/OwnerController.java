@@ -78,6 +78,12 @@ public class OwnerController {
         return propertyService.findByOwner(pageable);
     }
 
+    @GetMapping("properties/{id}")
+    public ResponseEntity<PropertyResponse> getProperty(@PathVariable("id") Long id) {
+        PropertyResponse propertyResponse = propertyService.findById(id);
+        return ResponseEntity.ok(propertyResponse);
+    }
+
     @GetMapping("offers")
     public Page<OwnerOffersResponse> getOffers(@RequestParam(defaultValue = "0") int page,
                                                @RequestParam(defaultValue = "10") int size) {
