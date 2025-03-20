@@ -50,7 +50,7 @@ public class AdminController {
         }
         UserResponse user = userService.findByName(request.getEmail());
         String jwt = jwtUtil.generateToken(request.getEmail());
-        return ResponseEntity.ok(new AuthResponse(jwt, user.getId(), user.getEmail(), user.getName(), user.getImageUrl()));
+        return ResponseEntity.ok(new AuthResponse(jwt, user.getId(), user.getEmail(), user.getName(), user.getImageUrl(),user.isActive(),user.isApproved()));
 //          }
 //          catch (Exception e) {
 //              System.out.println("Exception: " + e.getClass());

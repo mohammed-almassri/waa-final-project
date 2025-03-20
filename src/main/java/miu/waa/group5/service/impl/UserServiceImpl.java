@@ -50,6 +50,10 @@ public class UserServiceImpl implements UserService {
         return u.map(user -> modelMapper.map(user, UserResponse.class)).orElseThrow(() -> new RuntimeException("no user with the username" + username));
     }
 
+    @Override
+    public User findByEmail(String email) {
+        return userRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("no user with the email" + email));
+    }
 
 
     @Override

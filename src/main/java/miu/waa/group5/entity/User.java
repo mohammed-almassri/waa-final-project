@@ -34,10 +34,10 @@ public class User {
     private String imageUrl;
 
     @Column(columnDefinition = "boolean default true")
-    private boolean isActive;
+    private boolean isActive = true;
 
     @Column(columnDefinition = "boolean default true")
-    private boolean isApproved;
+    private boolean isApproved = true;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
