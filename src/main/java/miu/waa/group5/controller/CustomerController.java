@@ -128,6 +128,11 @@ public class CustomerController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("/favorites/{id}")
+    public void deleteFavorite(@PathVariable Long id) {
+        favoritesService.deleteFavorite(id);
+    }
+
     @GetMapping("/favorites")
     public Page<PropertyResponse> getCustomerFavorites(@RequestParam(defaultValue = "0") int page,
                                                        @RequestParam(defaultValue = "10") int size) {

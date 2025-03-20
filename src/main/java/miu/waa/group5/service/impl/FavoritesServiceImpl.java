@@ -65,6 +65,20 @@ public class FavoritesServiceImpl implements FavoritesService {
 
     @Transactional
     @Override
+    public void deleteFavorite(Long favoriteId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("No user with username: " + username));
+
+        Favorites favorite = favoritesRepository.findByIdAndCustomerId(favoriteId, user.getId())
+                .orElseThrow(() -> new RuntimeException("Favorite not found or you do not have permission to delete it."));
+
+        favoritesRepository.delete(favorite);
+    }
+
+    @Transactional
+    @Override
     public Page<PropertyResponse> getCustomerFavorites(Pageable pageable) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

@@ -11,5 +11,7 @@ import java.util.List;
 public interface FavoritesService {
     FavoriteResponse addFavorite(FavoriteRequest request);
 
+    public void deleteFavorite(Long favoriteId);
+
     Page<PropertyResponse> getCustomerFavorites(Pageable pageable);
 }
