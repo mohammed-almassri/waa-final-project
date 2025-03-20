@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.*;
 import java.nio.file.AccessDeniedException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Validated
 @RequiredArgsConstructor
@@ -94,8 +96,9 @@ public class CustomerController {
         List<HomeType> homeTypes = null;
         if (homeType != null && !homeType.isEmpty()) {
             homeTypes = Arrays.stream(homeType.split(","))
-                    .map(HomeType::valueOf)
-                    .toList();
+                    .map(HomeType::getEnumByString)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get).collect(Collectors.toList());
         }
         return propertyService.findProperties(
                 city, state, minPrice, maxPrice, minBedroomCount, maxBedroomCount,
