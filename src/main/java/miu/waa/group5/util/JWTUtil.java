@@ -122,6 +122,7 @@ public class JWTUtil {
         Claims claims = getAllClaimsFromToken(token);
         UserDetails userDetails = userDetailsService.loadUserByUsername(claims.getSubject());
         var authorities = userDetails.getAuthorities();
+        System.out.println(userDetails.getUsername());
         return new UsernamePasswordAuthenticationToken(
                 userDetails, null, authorities);
     }
