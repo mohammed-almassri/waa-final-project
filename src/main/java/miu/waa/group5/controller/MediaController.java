@@ -62,6 +62,7 @@ public class MediaController {
 
             return new UploadResponse(urls);
         } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
             throw new RuntimeException("Error processing uploads", e);
         }
     }
