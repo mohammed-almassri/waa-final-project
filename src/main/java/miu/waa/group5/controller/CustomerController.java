@@ -131,4 +131,9 @@ public class CustomerController {
         Pageable pageable = PageRequest.of(page, size);
         return (Page<OfferListResponse>) offerService.getAllOffers(pageable);
     }
+
+    @DeleteMapping("/offers/{id}")
+    public void deleteOffer(@PathVariable long id) {
+        offerService.deleteOffer(id);
+    }
 }
