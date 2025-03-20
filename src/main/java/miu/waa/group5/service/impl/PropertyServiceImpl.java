@@ -68,7 +68,8 @@ public class PropertyServiceImpl implements PropertyService {
         predicates.add(cb.equal(property.get("owner").get("isActive"), true));
 
         if (city != null) {
-                predicates.add(cb.equal(property.get("city"), city));
+                //predicates.add(cb.equal(property.get("city"), city));
+                predicates.add(cb.like(cb.lower(property.get("city")), "%" + city.toLowerCase() + "%"));
         }
         if (state != null) {
                 predicates.add(cb.equal(property.get("state"), state));
