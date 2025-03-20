@@ -40,6 +40,7 @@ public class OfferServiceImpl implements OfferService {
     @Autowired
     private PropertyService propertyService;
 
+    @Transactional
     public OfferResponse createOffer(OfferRequest offerRequest) {
         Property property = propertyRepository.findById(offerRequest.getPropertyId()).orElseThrow(() -> new RuntimeException("no property with the id"));
         offerRequest.setPropertyId(null); // Prevent modelMapper from creating a new Property.
@@ -52,8 +53,9 @@ public class OfferServiceImpl implements OfferService {
         if (property.getStatus() == StatusType.SOLD || property.getStatus() == StatusType.CONTINGENT) {
             throw new RuntimeException("sold or contingent property");
         }
-
+        property.setStatus(StatusType.PENDING);
         offerRepository.save(offer);
+
         return modelMapper.map(offer, OfferResponse.class);
     }
 
