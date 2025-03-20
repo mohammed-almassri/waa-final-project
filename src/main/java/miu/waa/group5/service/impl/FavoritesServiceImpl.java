@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,6 +48,12 @@ public class FavoritesServiceImpl implements FavoritesService {
 
         Property property = propertyRepository.findById(request.getPropertyId())
                 .orElseThrow(() -> new RuntimeException("Property not found"));
+
+        Optional<Favorites> existingFavorite = favoritesRepository.findByCustomerIdAndPropertyId(user.getId(), request.getPropertyId());
+
+        if (existingFavorite.isPresent()) {
+            return new FavoriteResponse(existingFavorite.get().getId());
+        }
 
         Favorites favorite = new Favorites();
         favorite.setCustomer(user);
