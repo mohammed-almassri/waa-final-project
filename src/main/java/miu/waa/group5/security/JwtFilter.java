@@ -28,6 +28,7 @@ public class JwtFilter extends OncePerRequestFilter {
             "/api/customers/signup",
             "/api/customers/properties",
             "/actuator/health",
+            "/api/media/upload",
             "/"
     );
 

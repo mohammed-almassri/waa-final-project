@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/api/admins/login").permitAll()
                         .requestMatchers("/api/customers/properties").permitAll()
+                        .requestMatchers("/api/media/upload").permitAll()
                         .requestMatchers("/api/customers/properties/**").permitAll()
                         .requestMatchers("/api/owners/login", "/api/owners/signup").permitAll()
                         .requestMatchers("/api/customers/login", "/api/customers/signup").permitAll()
