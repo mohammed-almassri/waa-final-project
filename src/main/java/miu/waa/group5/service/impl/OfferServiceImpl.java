@@ -77,6 +77,7 @@ public class OfferServiceImpl implements OfferService {
         if (property.getStatus() == StatusType.SOLD) {
             throw new RuntimeException("This property is no longer available.");
         }
+        propertyService.validateOwner(property);
         offer.setIsAccepted(offerJudgeRequest.getIsAccepted());
         offer.setProcessedAt(LocalDateTime.now());
         offerRepository.save(offer);
@@ -103,6 +104,7 @@ public class OfferServiceImpl implements OfferService {
         if (property.getStatus() != StatusType.CONTINGENT) {
             throw new RuntimeException("The status has to be contingent before being sold.");
         }
+        propertyService.validateOwner(property);
         offer.setSoldAt(LocalDateTime.now());
         property.setStatus(StatusType.SOLD);
         List<Offer> offers = offerRepository.findAllByIdNotAndProperty_Id(offer.getId(), property.getId());
@@ -122,6 +124,26 @@ public class OfferServiceImpl implements OfferService {
         User customer = userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("no user with the username" + username));
         Page<Offer> offers = offerRepository.findByCustomerId(customer.getId(), pageable);
         return offers.map(this::mapToOfferListResponse);
+    }
+
+    public void deleteOffer(long id) {
+        Offer offer = offerRepository.findById(id).orElseThrow(() -> new RuntimeException("No offer with the id"));
+        validateCustomer(offer);
+        if (offer.getIsAccepted() != null && offer.getIsAccepted()) {
+            throw new RuntimeException("This offer is already accepted.");
+        }
+        offerRepository.delete(offer);
+    }
+
+
+    public void validateCustomer(Offer offer) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("no user with the username" + username));
+
+        if (!user.getEmail().equals(offer.getCustomer().getEmail())) {
+            throw new RuntimeException("you don't own this offer");
+        }
     }
 
     private OfferListResponse mapToOfferListResponse(Offer offer) {

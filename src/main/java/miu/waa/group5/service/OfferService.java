@@ -1,6 +1,7 @@
 package miu.waa.group5.service;
 
 import miu.waa.group5.dto.*;
+import miu.waa.group5.entity.Offer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,4 +15,6 @@ public interface OfferService {
     public OfferJudgeResponse judgeOffer(OfferJudgeRequest offerJudgeRequest, long id);
     public OfferFinalizeResponse finalizeOffer(OfferFinalizeRequest offerFinalizeRequest, long id);
     public Page<OfferListResponse> getAllOffers(Pageable pageable);
+    public void deleteOffer(long id);
+    public void validateCustomer(Offer offer);
 }
