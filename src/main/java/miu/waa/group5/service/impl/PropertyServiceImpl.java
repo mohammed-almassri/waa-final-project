@@ -149,7 +149,11 @@ public class PropertyServiceImpl implements PropertyService {
     public void deleteProperty(long id) {
         Property property = propertyRepository.findById(id).orElseThrow(() -> new RuntimeException("no property with id: " + id));
         validateOwner(property);
-        propertyRepository.delete(property);
+        if (property.getStatus() == StatusType.AVAILABLE) {
+            propertyRepository.delete(property);
+        } else {
+            throw new RuntimeException("Property status is invalid for deletion");
+        }
 
     }
 
