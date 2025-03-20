@@ -9,13 +9,11 @@ import jakarta.persistence.criteria.Root;
 import miu.waa.group5.dto.PropertyDTO;
 import miu.waa.group5.dto.PropertyRequest;
 import miu.waa.group5.dto.PropertyResponse;
-import miu.waa.group5.dto.UserResponse;
 import miu.waa.group5.entity.*;
 import miu.waa.group5.repository.MediaRepository;
 import miu.waa.group5.repository.PropertyRepository;
 import miu.waa.group5.repository.UserRepository;
 import miu.waa.group5.service.PropertyService;
-import miu.waa.group5.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -136,6 +134,28 @@ public class PropertyServiceImpl implements PropertyService {
 
     }
 
+    @Transactional
+    public PropertyResponse updateProperty(PropertyRequest propertyRequest, long id) {
+        Property property = propertyRepository.findById(id).orElseThrow(() -> new RuntimeException("no property with id: " + id));
+        convertToEntity(propertyRequest, property);
+        validateOwner(property);
+        List<Media> medias = mediaRepository.findAllByUrlIn(propertyRequest.getImageURLs());
+        property.setMedias(medias);
+        propertyRepository.save(property);
+        return convertToDto(property);
+    }
+
+    @Transactional
+    public void deleteProperty(long id) {
+        Property property = propertyRepository.findById(id).orElseThrow(() -> new RuntimeException("no property with id: " + id));
+        validateOwner(property);
+        propertyRepository.delete(property);
+
+    }
+
+
+
+
     public Page<PropertyResponse> findByOwner(Pageable pageable) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
@@ -146,6 +166,22 @@ public class PropertyServiceImpl implements PropertyService {
     public PropertyResponse findById(long id) {
         Property property = propertyRepository.findById(id).orElseThrow(() -> new RuntimeException("no property with id: " + id));
         return convertToDto(property);
+    }
+
+    public void convertToEntity(PropertyRequest propertyRequest, Property destination) {
+        modelMapper.map(propertyRequest, destination);
+        Optional<HomeType> homeType = HomeType.getEnumByString(propertyRequest.getHomeType());
+        homeType.ifPresent(destination::setHomeType);
+    }
+
+    public void validateOwner(Property property) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("no user with the username" + username));
+
+        if (!user.getEmail().equals(property.getOwner().getEmail())) {
+            throw new RuntimeException("you don't own this property");
+        }
     }
 
 

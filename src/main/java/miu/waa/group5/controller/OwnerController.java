@@ -69,6 +69,17 @@ public class OwnerController {
         return ResponseEntity.ok(propertyResponse);
     }
 
+    @PutMapping("properties/{id}")
+    public ResponseEntity<PropertyResponse> updateProperty(@RequestBody @Valid PropertyRequest propertyRequest, @PathVariable Long id) {
+        PropertyResponse propertyResponse = propertyService.updateProperty(propertyRequest, id);
+        return ResponseEntity.ok(propertyResponse);
+    }
+
+    @DeleteMapping("properties/{id}")
+    public void deleteProperty(@PathVariable long id) {
+        propertyService.deleteProperty(id);
+    }
+
     @GetMapping("properties")
     public Page<PropertyResponse> getProperties(
             @RequestParam(defaultValue = "0") int page,
@@ -76,6 +87,12 @@ public class OwnerController {
     )  {
         Pageable pageable = PageRequest.of(page, size);
         return propertyService.findByOwner(pageable);
+    }
+
+    @GetMapping("properties/{id}")
+    public ResponseEntity<PropertyResponse> getProperty(@PathVariable("id") Long id) {
+        PropertyResponse propertyResponse = propertyService.findById(id);
+        return ResponseEntity.ok(propertyResponse);
     }
 
     @GetMapping("offers")

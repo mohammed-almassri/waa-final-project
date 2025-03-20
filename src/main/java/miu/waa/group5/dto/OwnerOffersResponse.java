@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,6 +15,7 @@ public class OwnerOffersResponse {
     private String message;
     private Double offeredPrice;
     private Boolean isAccepted;
+    private LocalDateTime soldAt;
     private PropertyDTO property;
     private UserResponse customer;
 }
