@@ -2,6 +2,7 @@ package miu.waa.group5.service.impl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -57,64 +58,37 @@ public class PropertyServiceImpl implements PropertyService {
                                             Integer maxBathroomCount, List<HomeType> homeTypes,
                                             Boolean hasParking, Boolean hasPool, Boolean hasAC, Pageable pageable) {
 
-        List<Predicate> predicates = new ArrayList<>();
 
         // 1. grab CriteriaBuilder
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Property> cq = cb.createQuery(Property.class);
+        CriteriaQuery<Long> countCq = cb.createQuery(Long.class);
         Root<Property> property = cq.from(Property.class);
+        Root<Property> countRoot = countCq.from(Property.class);
+        List<Predicate> predicates = buildPredicates(city, state, minPrice, maxPrice,
+                minBedroomCount, maxBedroomCount, minBathroomCount,
+                maxBathroomCount, homeTypes,
+                hasParking,hasPool,hasAC, cb, property);
+        List<Predicate> countPredicates = buildPredicates(city, state, minPrice, maxPrice,
+                minBedroomCount, maxBedroomCount, minBathroomCount,
+                maxBathroomCount, homeTypes,
+                hasParking,hasPool,hasAC, cb, countRoot);
 
-        // 2. Add query conditions dynamically based on the parameters passed in
-        predicates.add(cb.equal(property.get("owner").get("isActive"), true));
 
-        predicates.add(cb.notEqual(property.get("status"), StatusType.SOLD));
-
-        if (city != null) {
-                //predicates.add(cb.equal(property.get("city"), city));
-                predicates.add(cb.like(cb.lower(property.get("city")), "%" + city.toLowerCase() + "%"));
-        }
-        if (state != null) {
-                predicates.add(cb.equal(property.get("state"), state));
-        }
-        if (minPrice != null) {
-                predicates.add(cb.greaterThanOrEqualTo(property.get("price"), minPrice));
-        }
-        if (maxPrice != null) {
-                predicates.add(cb.lessThanOrEqualTo(property.get("price"), maxPrice));
-        }
-        if (minBedroomCount != null) {
-                predicates.add(cb.greaterThanOrEqualTo(property.get("bedroomCount"), minBedroomCount));
-        }
-        if (maxBedroomCount != null) {
-                predicates.add(cb.lessThanOrEqualTo(property.get("bedroomCount"), maxBedroomCount));
-        }
-        if (minBathroomCount != null) {
-                predicates.add(cb.greaterThanOrEqualTo(property.get("bathroomCount"), minBathroomCount));
-        }
-        if (maxBathroomCount != null) {
-                predicates.add(cb.lessThanOrEqualTo(property.get("bathroomCount"), maxBathroomCount));
-        }
-        if (hasParking != null) {
-                predicates.add(cb.equal(property.get("hasParking"), hasParking));
-        }
-        if (hasPool != null) {
-                predicates.add(cb.equal(property.get("hasPool"), hasPool));
-        }
-        if (hasAC != null) {
-                predicates.add(cb.equal(property.get("hasAC"), hasAC));
-        }
-        if (homeTypes != null && !homeTypes.isEmpty()) {
-                predicates.add(property.get("homeType").in(homeTypes));
-        }
 
         // 3. final query
         cq.where(predicates.toArray(new Predicate[0]));
-
+        countCq.select(cb.count(countRoot));
+        // want to copy predicate
+        countCq.where(countPredicates.toArray(new Predicate[0]));
         // 4. return result
+        long totalCount = entityManager.createQuery(countCq).getSingleResult();
         List<Property> properties = entityManager.createQuery(cq)
-                .setFirstResult(pageable.getPageNumber())
+                .setFirstResult(pageable.getPageNumber() * pageable.getPageSize())
                 .setMaxResults(pageable.getPageSize()).getResultList();
-        Page<Property> pageProperties = new PageImpl<Property>(properties, pageable, properties.size());
+
+
+        Page<Property> pageProperties = new PageImpl<Property>(properties, pageable, totalCount);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
@@ -197,6 +171,57 @@ public class PropertyServiceImpl implements PropertyService {
         }else{
             return propertyResponse;
         }
+    }
+
+    public List<Predicate> buildPredicates(String city, String state, Double minPrice, Double maxPrice,
+                                           Integer minBedroomCount, Integer maxBedroomCount, Integer minBathroomCount,
+                                           Integer maxBathroomCount, List<HomeType> homeTypes,
+                                           Boolean hasParking, Boolean hasPool, Boolean hasAC,
+                                           CriteriaBuilder cb, Root<Property> property) {
+        List<Predicate> predicates = new ArrayList<>();
+        // 2. Add query conditions dynamically based on the parameters passed in
+        predicates.add(cb.equal(property.get("owner").get("isActive"), true));
+
+        predicates.add(cb.notEqual(property.get("status"), StatusType.SOLD));
+
+        if (city != null) {
+            //predicates.add(cb.equal(property.get("city"), city));
+            predicates.add(cb.like(cb.lower(property.get("city")), "%" + city.toLowerCase() + "%"));
+        }
+        if (state != null) {
+            predicates.add(cb.equal(property.get("state"), state));
+        }
+        if (minPrice != null) {
+            predicates.add(cb.greaterThanOrEqualTo(property.get("price"), minPrice));
+        }
+        if (maxPrice != null) {
+            predicates.add(cb.lessThanOrEqualTo(property.get("price"), maxPrice));
+        }
+        if (minBedroomCount != null) {
+            predicates.add(cb.greaterThanOrEqualTo(property.get("bedroomCount"), minBedroomCount));
+        }
+        if (maxBedroomCount != null) {
+            predicates.add(cb.lessThanOrEqualTo(property.get("bedroomCount"), maxBedroomCount));
+        }
+        if (minBathroomCount != null) {
+            predicates.add(cb.greaterThanOrEqualTo(property.get("bathroomCount"), minBathroomCount));
+        }
+        if (maxBathroomCount != null) {
+            predicates.add(cb.lessThanOrEqualTo(property.get("bathroomCount"), maxBathroomCount));
+        }
+        if (hasParking != null) {
+            predicates.add(cb.equal(property.get("hasParking"), hasParking));
+        }
+        if (hasPool != null) {
+            predicates.add(cb.equal(property.get("hasPool"), hasPool));
+        }
+        if (hasAC != null) {
+            predicates.add(cb.equal(property.get("hasAC"), hasAC));
+        }
+        if (homeTypes != null && !homeTypes.isEmpty()) {
+            predicates.add(property.get("homeType").in(homeTypes));
+        }
+        return predicates;
     }
 
     public void convertToEntity(PropertyRequest propertyRequest, Property destination) {
